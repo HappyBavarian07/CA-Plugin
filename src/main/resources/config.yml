@@ -1,0 +1,93 @@
+#############################################################
+#+---------------------------------------------------------+#
+#|                    CraftAttack Plugin                   |#
+#+---------------------------------------------------------+#
+#############################################################
+
+                     #####################
+                     #       Infos       #
+                     #####################
+        # All Placeholders from PlaceholderAPI are working
+        # This Plugin is not the Official one
+        # Any distribution without the consent of the author is prohibited
+        # The Files ("spawnloc.yml") should not be edited!
+Lobby-Worlds:
+  - lobby1
+  - lobby2
+CA:
+  settings:
+    # This is the language option you can add language files to the "languages" folder,
+    # and then enter the name of the file (without .yml) here. Note upper and lower case!
+    # Example: /plugins/Admin-Panel/languages/<Language>.yml | language (in the config): Language
+    language: de
+
+    # This Option makes it that all Actions (Plugin Update, Admin Panel Open, ...) get logged
+    # in the plugin.log File If You don't want this please disable this Option!
+    LogActions: true
+    # The Auto Plugin Updater Section
+    Updater:
+      # If this option is activated, the updater will automatically check for updates
+      # (Attention: The updater will not recognize whether you have an old or a new version! Only differences in the version-name)
+      # The plugin uses https://spiget.org for this feature
+      checkForUpdates: true
+      # If this option is activated, the updater will automatically download the update (if available) from Spigot.
+      # The update can then be found in plugins/Admin-Panel/downladed-update/Admin-Panel-<UpdateVersion>.jar!
+      downloadPluginUpdate: false
+      # If this option and the downloadPluginUpdate option is activated,
+      # then the updater will automatically replace the plugin with the new version!
+      automaticReplace: false
+      # With this Option you can control how often the Updater should check!
+      # You can configure here the Time between Checks (in Minutes)
+      UpdateCheckTime: 5
+      # This Option will enable/disable if the Plugin should automatically update the Language Files
+      AutomaticLanguageFileUpdating: true
+    Heads:
+      Command: false
+      Killing: true
+    Flytime: 300
+    Spawn:
+      # The Radius for the Plugin to check for Elytra
+      Radius: 5
+    Tablist:
+      # Header of the Tablist
+      Header:
+      - '&4Example Header1'
+      - '&4Example Header2'
+      # Footer of the Tablist
+      Footer:
+      - '&2Example Footer1'
+      - '&4Example Footer2'
+  rules:
+    # With this option you can activate the rules you have set in rules.yml Default: false
+    # If this option is set to false then everyone who executes the command and the rights will receive a message
+    # If he does not have the rights to do so then it will say go to an admin
+    activate: false
+  # Here you switch the World Check if someone is allowed to enter the Craft Attack World (Standard: true)
+  world:
+    Access_Check: true
+    CraftAttack_World: CraftAttack
+    CraftAttack_Players:
+      - 'ExampleAccName'
+    Cam_Players:
+      - 'ExampleCamAccName'
+    CraftingRecipes:
+      Player_heads:
+        # The Pattern is:
+        # C C C
+        # C B C
+        # A D A
+        # A
+        Zutat1: GRAVEL
+        # B
+        Zutat2: SPRUCE_LOG
+        # C
+        Zutat3: SMOOTH_QUARTZ
+        # D
+        Zutat4: APPLE
+      InvisibItemFrames:
+        # The Pattern is:
+        # G G G
+        # G L G
+        # G G G
+        Rand: GLASS
+        Mitte: LEATHER

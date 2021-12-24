@@ -1,0 +1,202 @@
+panels:
+  Prefix_Panel:
+    perm: default
+    rows: 3
+    title: '§aPrefix §3Menu'
+    empty: BLACK_STAINED_GLASS_PANE
+    pre-load-commands:
+    - add-data= prefixused false
+    commands-on-open:
+    - set-data= prefixused false
+    - 'msg= &aOpening Prefix Menu'
+    item:
+      '0':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '2':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '3':
+        material: YELLOW_WOOL
+        stack: 1
+        name: '§3%ca_offline_config%'
+        lore:
+        - '§3Prefix: §7%ca_offline_prefix%'
+        - '§3Suffix: §7%ca_offline_suffix%'
+        - '§3Format: §7%ca_offline_prefix%%player_name%%ca_offline_suffix%'
+        commands:
+        - sudo= prefix Offline
+        - set-data= prefixused true
+        - refresh
+        hasvalue:
+          compare: '%cp-data-prefixused%'
+          value: true
+          material: BARRIER
+          name: '&cItem wurde schon benutzt!'
+      '4':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '5':
+        material: LIME_WOOL
+        stack: 1
+        name: '§3%ca_online_config%'
+        lore:
+        - '§3Prefix: §7%ca_online_prefix%'
+        - '§3Suffix: §7%ca_online_suffix%'
+        - '§3Format: §7%ca_online_prefix%%player_name%%ca_online_suffix%'
+        commands:
+        - sudo= prefix Online
+        - set-data= prefixused true
+        - refresh
+        hasvalue:
+          compare: '%cp-data-prefixused%'
+          value: true
+          material: BARRIER
+          name: '&cItem wurde schon benutzt!'
+      '6':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '7':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '8':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '9':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '10':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '11':
+        material: ORANGE_WOOL
+        stack: 1
+        name: '§3%ca_afk_config%'
+        lore:
+        - '§3Prefix: §7%ca_afk_prefix%'
+        - '§3Suffix: §7%ca_afk_suffix%'
+        - '§3Format: §7%ca_afk_prefix%%player_name%%ca_afk_suffix%'
+        commands:
+        - sudo= prefix Afk
+        - set-data= prefixused true
+        - refresh
+        hasvalue:
+          compare: '%cp-data-prefixused%'
+          value: true
+          material: BARRIER
+          name: '&cItem wurde schon benutzt!'
+      '12':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '14':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '15':
+        material: BLUE_WOOL
+        stack: 1
+        name: '§3%ca_live_config%'
+        lore:
+        - '§3Prefix: §7%ca_live_prefix%'
+        - '§3Suffix: §7%ca_live_suffix%'
+        - '§3Format: §7%ca_live_prefix%%player_name%%ca_live_suffix%'
+        commands:
+        - sudo= prefix Live
+        - set-data= prefixused true
+        - refresh
+        hasvalue:
+          compare: '%cp-data-prefixused%'
+          value: true
+          material: BARRIER
+          name: '&cItem wurde schon benutzt!'
+      '16':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '17':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '18':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '19':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '20':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '21':
+        material: WHITE_WOOL
+        stack: 1
+        name: '§3%ca_record_config%'
+        lore:
+        - '§3Prefix: §7%ca_record_prefix%'
+        - '§3Suffix: §7%ca_record_suffix%'
+        - '§3Format: §7%ca_record_prefix%%player_name%%ca_record_suffix%'
+        commands:
+        - sudo= prefix Record
+        - set-data= prefixused true
+        - refresh
+        hasvalue:
+          compare: '%cp-data-prefixused%'
+          value: true
+          material: BARRIER
+          name: '&cItem wurde schon benutzt!'
+      '23':
+        material: RED_WOOL
+        stack: 1
+        name: '§3%ca_redstone_config%'
+        lore:
+        - '§3Prefix: §7%ca_redstone_prefix%'
+        - '§3Suffix: §7%ca_redstone_suffix%'
+        - '§3Format: §7%ca_redstone_prefix%%player_name%%ca_redstone_suffix%'
+        commands:
+        - sudo= prefix Redstone
+        - set-data= prefixused true
+        - refresh
+        hasvalue:
+          compare: '%cp-data-prefixused%'
+          value: true
+          material: BARRIER
+          name: '&cItem wurde schon benutzt!'
+      '24':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '25':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '26':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '13':
+        material: BOOK
+        stack: 1
+        name: '§aPrefix §3Menu'
+        lore:
+        - '§3- §7Hier kannst du deinen Prefix wählen'
+        - '§3- §7Du musst nur auf das jeweilige Item klicken'
+        - '§3- §7Mehr Infos mit /prefix <Prefix>'
+      '22':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''
+      '1':
+        material: LIGHT_GRAY_STAINED_GLASS_PANE
+        stack: 1
+        name: ''

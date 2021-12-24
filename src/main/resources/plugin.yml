@@ -1,0 +1,89 @@
+name: CA-Plugin
+main: me.happybavarian07.main.CAPluginMain
+api-version: 1.13
+version: ${project.version}
+author: HappyBavarian07
+depend: [ProtocolLib, PlaceholderAPI, EffectLib, CommandPanels]
+commands:
+  cainfos:
+    usage: /cainfos
+    description: Zeigt dir Infos ueber Craft Attack
+  skull:
+    usage: /skull <player>
+    description: Gibt dir einen Spieler Kopf
+  rules:
+    usage: /rules
+    description: Zeigt dir die Regeln von CA an.
+    aliases: [rl, rs, ru, regeln, caregeln]
+  prefix:
+    usage: /prefix <Offline|Online|Redstone>
+    description: Setzt deinen CraftAttack Status.
+    aliases: [px, pf]
+  afk:
+    usage: /afk <on|off>
+    description: Setzt deinen Status auf AFK und du kannst dich nicht mehr bewegen!
+  world:
+    usage: /world <subcommand>
+  marker:
+    usage: /marker <subcommand>
+  craftattack:
+    usage: /ca <subcommand> (/ca help)
+    aliases:
+      - ca
+  debug:
+    usage: /debug <subcommand>
+    aliases: [db]
+  build:
+    usage: /build
+    description: Lets you build in Lobbys
+  verify:
+    usage: /verify <Code>
+    description: Use it to connect your Discord with MC
+  unlink:
+    usage: /unlink
+    description: Use it to unlink your Discord
+
+permissions:
+  ca.*:
+    default: op
+    children:
+      ca.chat.color: true
+      ca.chat.placeholders: true
+      ca.infos.read: true
+      ca.player.*:
+        default: true
+        children:
+          ca.player.spawn: true
+          ca.player.skull: true
+          ca.player.marker: true
+      ca.admin.*:
+        default: op
+        children:
+          ca.admin.orga: true
+          ca.admin.fehler.worldcheckerisdis: true
+          ca.admin.debug: true
+          ca.admin.setspawnloc: true
+          ca.admin.control: true
+          ca.admin.troll: true
+          ca.admin.troll.elytra.onground: true
+          ca.admin.nick: true
+          ca.admin.playerinfos: true
+          ca.admin.lobby.*:
+            default: op
+            children:
+              ca.admin.lobby.build: true
+          ca.admin.world.*:
+            default: op
+            children:
+              ca.admin.world.import: true
+              ca.admin.world.teleport: true
+      ca.afk.*:
+        default: true
+        children:
+          ca.afk.self: true
+          ca.afk.other: true
+      ca.prefix: true
+      ca.rules.*:
+        ca.rules.fehler.activate: true
+        ca.rules.notdefinedmessage: true
+        ca.rules.read: true

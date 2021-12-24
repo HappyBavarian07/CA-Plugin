@@ -1,0 +1,18 @@
+# Bot Section
+# If you enable the Bot and reload the Server, the Bot can break!!!
+Bot:
+  # Token of the Discord Bot
+  Token: "BOTTOKEN"
+  # Activity of the Bot
+  Activity: "Minecraft"
+# Channels Section
+Channels:
+  ConsoleLogChannel: "000000000000000000"
+  MinecraftChatChannel: "000000000000000000"
+
+Settings:
+  enabled: false
+  LogConsole: false
+  MinecraftChatToDiscord: true
+  DiscordChatToMinecraft: true
+  LogStartAndStop: true

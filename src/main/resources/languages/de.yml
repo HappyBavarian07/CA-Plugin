@@ -1,0 +1,109 @@
+LanguageFullName: 'Deutsch'
+LanguageVersion: '1.0.0'
+Messages:
+  Plugin:
+    Enabled: '%prefix% &9> &aPlugin erfolgreich aktiviert!'
+    Disabled: '%prefix% &9> &cPlugin erfolgreich deaktiviert!'
+    ReloadedLanguageFile: '%prefix% &9> &aLanguage %language% erfolgreich reloaded!'
+    ReloadedPluginSuccessfully: '%prefix% &9> &aPlugin erfolgreich reloaded!'
+    ReloadedConfigSuccessfully: '%prefix% &9> &aConfig erfolgreich reloaded!'
+    ReloadedTablistSuccessfully: '%prefix% &9> &aTablist erfolgreich reloaded für jeden Spieler!'
+  Chat:
+    Splitter: ' &9>>&7 '
+  Player:
+    Debug:
+      Prefixes:
+        PageDoesNotExist: '%prefix% &9> &cDiese Seite existiert nicht!'
+        Header: '&a------------ &b(&5%page%&7/&5%max_page%&b) &a------------'
+        Format: '  &b%player_name% &7- &b%config_name%'
+        Footer: '&a------------ &b(&5%page%&7/&5%max_page%&b) &a------------'
+    CraftAttackSpawnSet: '%prefix% &9> &aCraftAttack Spawn-Location erfolgreich gesetzt!'
+    PlayerIsNull: '%prefix% &9> &4Error: &fThe Player &b%target_name%&f doesn''t exist or isn''t online!'
+    Marker:
+      NoMarkersFound: '%prefix% &9> &4Error: &fKeine Marker gefunden!'
+      MarkerDoesntExists: '%prefix% &9> &4Error: &fDer Marker &b%marker%&f existiert nicht!'
+      MarkerAlreadyExists: '%prefix% &9> &4Error: &fDer Marker &b%marker%&f existiert bereits!'
+      MarkerSaved: '%prefix% &9> &7Marker &b%marker%&7 gespeichert!'
+      MarkerRemoved: '%prefix% &9> &7Marker &b%marker%&7 entfernt!'
+      List:
+        PageDoesNotExist: '%prefix% &9> &cDiese Seite existiert nicht!'
+        Header: '&a------------ &b(&5%page%&7/&5%max_page%&b) &a------------'
+        Format: '  &b%name% &7- &bWorld: %world%&7/&bX: %x%/&bY: %y%&7/&bZ: %z%&7/&bYaw: %yaw%&7/&bPitch: %pitch%'
+        Footer: '&a------------ &b(&5%page%&7/&5%max_page%&b) &a------------'
+    Troll:
+      Staff:
+        TargetLocked: '%prefix% &9> &7Dein Target &b%target_name%&7 ist nun im Stab gespeichert!'
+        NotTheOwner: '%prefix% &9> &4Du bist nicht der Besitzer dieses Stabs!'
+        Admin:
+          TryedToUseStaff: '%prefix% &9> &6%player_name% &4hat versucht den Stab von &6%stuffowner% zu benutzen!'
+    Join: '&4%player_name% &3hat das Spiel betreten!'
+    Quit: '&4%player_name% &3hat das Spiel verlassen!'
+    NoPermissions: '%prefix% &9> &cDu hast keine Rechte dazu! Permission: %permission%'
+    OpenSelector: '%prefix% &9> &aSelector Menü geöffnet!'
+    Lobby:
+      CanBuildNow: '%prefix% &9> &7Du kannst jetzt bauen in Lobbys!'
+      CanNoLongerBuild: '%prefix% &9> &fDu kannst jetzt nicht mehr bauen in Lobbys!'
+    Commands:
+      TooFewArguments: '%prefix% &9> &cZu wenig Argumente!'
+      TooManyArguments: '%prefix% &9> &cZu viele Argumente!'
+      InvalidSubCommand: '%prefix% &9> &cDas ist kein gültiger Befehl!'
+      ErrorPerformingSubCommand: '%prefix% &9> &cEin Fehler ist aufgetreten!'
+      UsageMessage: '%prefix% &9> &c%usage%'
+      NotANumber: '%prefix% &9> &cDas ist keine Nummer!'
+      HelpPageDoesNotExist: '%prefix% &9> &cDiese Hilfe Seite existiert nicht!'
+      HelpMessages:
+        # Header and Footer Placeholders:
+        # %page% = Current Page
+        # %max_page% = Max Page
+
+        # Format Placeholders:
+        # %usage% = Sub Command Usage
+        # %description% = Sub Command Description
+        # %name% = Sub Command Name
+        # %aliases% = Sub Command Aliases
+        # %permission% = Sub Command Permission
+        Header: '&a------------ &b(&5%page%&7/&5%max_page%&b) &a------------'
+        Format: '  &b%usage% &7- &b%description%'
+        Footer: '&a------------ &b(&5%page%&7/&5%max_page%&b) &a------------'
+    Afk:
+      MoveWhileAfk: '%prefix% &9> &7Du bist im &1A&2F&3K&4-&5M&6o&7d&8e&7 du kannst dich erst wieder bewegen wenn du &b/afk off eingegeben hast&7!'
+      AfkOn: '%prefix% &9> &7Du bist jetzt im &1A&2F&3K&4-&5M&6o&7d&8e&7!'
+      AfkOff: '%prefix% &9> &7Du bist nicht mehr im &1A&2F&3K&4-&5M&6o&7d&8e&7!'
+      AlreadyAfk: '%prefix% &9> &7Du bist schon im &1A&2F&3K&4&7!'
+      NotAfk: '%prefix% &9> &7Du bist nicht im &1A&2F&3K&4-&5M&6o&7d&8e&7!'
+      NotAfkOther: '%prefix% &9> &7Der Spieler &b%target_name% ist nicht im &1A&2F&3K&4-&5M&6o&7d&8e&7!'
+      AfkOnOther: '%prefix% &9> &7Du hast den &1A&2F&3K&4-&5M&6o&7d&8e&7 für &b%target_name% aktiviert&7!'
+      AfkOffOther: '%prefix% &9> &7Du hast den &1A&2F&3K&4-&5M&6o&7d&8e&7 für &b%target_name% deaktiviert&7!'
+      AfkOnOtherTarget: '%prefix% &9> &7Der &1A&2F&3K&4-&5M&6o&7d&8e&7 wurde für dich von &b%player_name% aktiviert&7!'
+      AfkOffOtherTarget: '%prefix% &9> &7Der &1A&2F&3K&4-&5M&6o&7d&8e&7 wurde für dich von &b%player_name% deaktiviert&7!'
+      AlreadyAfkOther: '%prefix% &9> &b%target_name%&7 ist bereits im &1A&2F&3K&4-&5M&6o&7d&8e&7!'
+  Console:
+    ExecutesPlayerCommand: '%prefix% &9> &cDu musst ein Spieler sein!'
+  Prefix:
+    Lobby:
+      Prefix: '&r[&7Lobby&r] &5'
+      Suffix: ''
+    Standard:
+      Prefix: '&r[&2Prefix&r] '
+      Suffix: ''
+    Offline:
+      Prefix: '&r[&2Offline&r] '
+      Suffix: ''
+    Online:
+      Prefix: '&r[&3Online&r] '
+      Suffix: ''
+    Redstone:
+      Prefix: '&r[&4Redstone&r] '
+      Suffix: ''
+    Live:
+      Prefix: '&r[&4Live&r] '
+      Suffix: ''
+    Afk:
+      Prefix: '&r[&6A&5F&4K&r] '
+      Suffix: ''
+    Record:
+      Prefix: '&r[&4Rec&r] '
+      Suffix: ''
+    Cam:
+      Prefix: '&r[&2Cam&r] '
+      Suffix: ''
