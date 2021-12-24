@@ -326,7 +326,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
             }
             languageManager.reloadLanguages(null, false);
         }
-        updater = new Updater(getPlugin(), 91800);
+        updater = new Updater(getPlugin(), 98642);
         if (getConfig().getBoolean("CA.settings.Updater.checkForUpdates")) {
             updater.checkForUpdates(true);
             if (updater.updateAvailable()) {
