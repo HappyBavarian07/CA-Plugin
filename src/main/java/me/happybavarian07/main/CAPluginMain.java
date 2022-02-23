@@ -158,7 +158,8 @@ public class CAPluginMain extends JavaPlugin implements Listener {
     public void onEnable() {
         setPlugin(this);
         logger = new StartUpLogger();
-        this.mySQLHandler = new MySQLHandler();
+        saveDefaultConfig();
+        this.mySQLHandler = new MySQLHandler(getConfig().getBoolean("CA.settings.MySQL.disabled", false));
         setupDiscord();
         em = new EffectManager(getPlugin());
         waehrung = Material.DIAMOND;
@@ -168,6 +169,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         worldChangeCheck = getConfig().getBoolean("CA.world.Access_Check");
         languageManager = new LanguageManager(this, new File(getDataFolder(), "/languages"));
         langFileUpdater = new OldLanguageFileUpdater(this);
+        updater = new Updater(this, 98642);
         commandManagerRegistry = new CommandManagerRegistry(this);
         fileLogger = new PluginFileLogger();
         if (!fileLogger.getLogFile().exists()) {
@@ -203,7 +205,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         prefixfile = fm.getFile("", "prefixes", "yml");
         new Utils(getPlugin(), prefixconfig);
         new CraftAttackExtension().register();
-        prefix = Utils.format(null, getConfig().getString("Plugin.Prefix", "[CA-Plugin]"), "");
+        prefix = Utils.format(null, getConfig().getString("CA.PluginPrefix", "[CA-Plugin]"), "");
         logger.message("§e§lDone§r").emptySpacer().spacer();
 
         /*
@@ -326,7 +328,6 @@ public class CAPluginMain extends JavaPlugin implements Listener {
             }
             languageManager.reloadLanguages(null, false);
         }
-        updater = new Updater(getPlugin(), 98642);
         if (getConfig().getBoolean("CA.settings.Updater.checkForUpdates")) {
             updater.checkForUpdates(true);
             if (updater.updateAvailable()) {
@@ -573,12 +574,17 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                 }
             }
             Location blockloc = e.getPlayer().getLocation().add(0, -1, 0);
-            World world = Bukkit.getWorld(Objects.requireNonNull(spawnconfig.getString("CraftAttack.Spawn.World")));
-            if (world == null) return;
-            double x = spawnconfig.getDouble("CraftAttack.Spawn.X");
-            double y = spawnconfig.getDouble("CraftAttack.Spawn.Y");
-            double Z = spawnconfig.getDouble("CraftAttack.Spawn.Z");
-            Location spawnmiddleloc = new Location(world, x, y, Z);
+            Location spawnmiddleloc;
+            if(spawnconfig == null || spawnconfig.getString("CraftAttack.Spawn.World") == null) {
+                return;
+            } else {
+                World world = Bukkit.getWorld(spawnconfig.getString("CraftAttack.Spawn.World"));
+                if (world == null) return;
+                double x = spawnconfig.getDouble("CraftAttack.Spawn.X");
+                double y = spawnconfig.getDouble("CraftAttack.Spawn.Y");
+                double Z = spawnconfig.getDouble("CraftAttack.Spawn.Z");
+                spawnmiddleloc = new Location(world, x, y, Z);
+            }
             if (isinSpawn((blockloc.add(0, 1, 0)), spawnmiddleloc, getConfig().getDouble("CA.settings.Spawn.Radius")) && blockloc.add(0, -1, 0).getBlock().getType().equals(Material.GOLD_BLOCK)) {
                 if ((e.getPlayer().getGameMode() == GameMode.SPECTATOR) || (e.getPlayer().getGameMode() == GameMode.CREATIVE)) {
                     return;

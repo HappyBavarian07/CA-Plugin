@@ -15,10 +15,14 @@ Lobby-Worlds:
   - lobby1
   - lobby2
 CA:
+  PluginPrefix: '&r[&cC&3A&7-&2Plugin&r] '
   settings:
+    MySQL:
+      # This Option disables the MySQL and saves all the Data in a File
+      disabled: false
     # This is the language option you can add language files to the "languages" folder,
     # and then enter the name of the file (without .yml) here. Note upper and lower case!
-    # Example: /plugins/Admin-Panel/languages/<Language>.yml | language (in the config): Language
+    # Example: /plugins/CA-Plugin/languages/<Language>.yml | language (in the config): Language
     language: de
 
     # This Option makes it that all Actions (Plugin Update, Admin Panel Open, ...) get logged
@@ -31,7 +35,7 @@ CA:
       # The plugin uses https://spiget.org for this feature
       checkForUpdates: true
       # If this option is activated, the updater will automatically download the update (if available) from Spigot.
-      # The update can then be found in plugins/Admin-Panel/downladed-update/Admin-Panel-<UpdateVersion>.jar!
+      # The update can then be found in plugins/CA-Plugin/downladed-update/CA-Plugin-<UpdateVersion>.jar!
       downloadPluginUpdate: false
       # If this option and the downloadPluginUpdate option is activated,
       # then the updater will automatically replace the plugin with the new version!

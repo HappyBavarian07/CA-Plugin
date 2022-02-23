@@ -3,10 +3,6 @@ package me.happybavarian07.main;/*
  * @Date 02.10.2021 | 13:15
  */
 
-import de.happybavarian07.main.AdminPanelAPI;
-import de.happybavarian07.main.AdminPanelMain;
-import me.happybavarian07.language.LanguageManager;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;

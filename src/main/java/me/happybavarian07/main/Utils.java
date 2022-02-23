@@ -12,6 +12,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Utils {
 
@@ -259,10 +260,23 @@ public class Utils {
 
     public static World randomLobby() {
         World lobbyWorld = null;
+
+        if(plugin.getConfig().getStringList("Lobby-Worlds").size() == 0) {
+            return Bukkit.getWorlds().get(0);
+        }
+
         while (lobbyWorld == null) {
-            String randomWorldName = plugin.getConfig().getStringList("Lobby-Worlds")
-                    .get(new Random().nextInt(plugin.getConfig().getStringList("Lobby-Worlds").size()));
-            lobbyWorld = Bukkit.getWorld(randomWorldName);
+            try {
+                String randomWorldName = plugin.getConfig().getStringList("Lobby-Worlds")
+                        .get(ThreadLocalRandom.current().nextInt(plugin.getConfig().getStringList("Lobby-Worlds").size()));
+                if (randomWorldName == null) {
+                    return Bukkit.getWorlds().get(0);
+                }
+                lobbyWorld = Bukkit.getWorld(randomWorldName);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return Bukkit.getWorlds().get(0);
+            }
         }
         return lobbyWorld;
     }

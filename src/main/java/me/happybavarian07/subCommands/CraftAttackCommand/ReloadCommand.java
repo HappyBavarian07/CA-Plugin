@@ -3,12 +3,9 @@ package me.happybavarian07.subCommands.CraftAttackCommand;/*
  * @Date 09.11.2021 | 15:15
  */
 
-import de.happybavarian07.main.AdminPanelMain;
-import de.happybavarian07.utils.PluginUtils;
 import me.happybavarian07.SubCommand;
 import me.happybavarian07.main.Prefix;
 import me.happybavarian07.main.Utils;
-import net.dv8tion.jda.api.JDA;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.entity.Player;
@@ -60,7 +57,8 @@ public class ReloadCommand extends SubCommand {
                     player2.removeMetadata("CamAccountScoreboardTag", plugin);
                 }
                 plugin.getDiscord().getBot().shutdown();
-                AdminPanelMain.getAPI().reloadPlugin(plugin);
+                Bukkit.getPluginManager().disablePlugin(plugin);
+                Bukkit.getPluginManager().enablePlugin(Bukkit.getPluginManager().getPlugin("CA-Plugin"));
             } catch (NoClassDefFoundError ignored) {
             }
             Bukkit.broadcastMessage("                 §a+--------------------------+");

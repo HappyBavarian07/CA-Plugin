@@ -1,8 +1,6 @@
 package me.happybavarian07.main;
 
-import de.happybavarian07.main.AdminPanelMain;
 import de.happybavarian07.utils.PluginUtils;
-import io.CodedByYou.spiget.Resource;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -25,17 +23,11 @@ public class Updater implements Listener {
     private final CAPluginMain plugin;
     private final int resourceID;
     private final PluginUtils pluginUtils;
-    Resource resource;
 
     public Updater(CAPluginMain plugin, int resourceID) {
         this.plugin = plugin;
         this.pluginUtils = new PluginUtils();
         this.resourceID = resourceID;
-        try {
-            this.resource = new Resource(resourceID);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     public String html2text(String html) {
@@ -176,7 +168,7 @@ public class Updater implements Listener {
         boolean updateAvailable = updateAvailable();
         if (!updateAvailable) {
             if (logInConsole) {
-                plugin.getStartUpLogger().message(ChatColor.translateAlternateColorCodes('&', AdminPanelMain.getPrefix() + "&a No Update available!"));
+                plugin.getStartUpLogger().message(ChatColor.translateAlternateColorCodes('&', CAPluginMain.getPrefix() + "&a No Update available!"));
             }
             plugin.getFileLogger().writeToLog(Level.INFO, "Checked For Updates -> There is no Update Available!", "Updater");
         } else {
@@ -188,7 +180,7 @@ public class Updater implements Listener {
                 String descriptionDecoded = html2text(new String(Base64.getDecoder().decode(descriptionEncoded)));
                 plugin.getStartUpLogger().message(ChatColor.translateAlternateColorCodes('&',
                         " &cPlugin outdated! &6Please download the new version on&r\n" +
-                                "&6" + resource.getDownloadLink() + "\n" +
+                                "&6https://www.spigotmc.org/resources/craft-attack-plugin-german-mysql-discord-bot.98642/\n" +
                                 "&6or just activate automatic updating and replacing in the Config!\n" +
                                 "&bCurrent Version: &c" + getPluginVersion() + "&r\n" +
                                 "&bNew Version: &c" + getLatestVersionName() + "&r\n" +
@@ -210,7 +202,7 @@ public class Updater implements Listener {
             String descriptionDecoded = html2text(new String(Base64.getDecoder().decode(descriptionEncoded)));
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
                     " &cPlugin outdated! &6Please download the new version on&r\n" +
-                            "&6" + resource.getDownloadLink() + "\n" +
+                            "&6https://www.spigotmc.org/resources/craft-attack-plugin-german-mysql-discord-bot.98642/\n" +
                             "&6or just activate automatic updating and replacing in the Config!\n" +
                             "&bCurrent Version: &c" + getPluginVersion() + "&r\n" +
                             "&bNew Version: &c" + getLatestVersionName() + "&r\n" +
@@ -229,7 +221,7 @@ public class Updater implements Listener {
             String descriptionDecoded = html2text(new String(Base64.getDecoder().decode(descriptionEncoded)));
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
                     " &cPlugin outdated! &6Please download the new version on&r\n" +
-                            "&6" + resource.getDownloadLink() + "\n" +
+                            "&6https://www.spigotmc.org/resources/craft-attack-plugin-german-mysql-discord-bot.98642/\n" +
                             "&6or just activate automatic updating and replacing in the Config!\n" +
                             "&bCurrent Version: &c" + getPluginVersion() + "&r\n" +
                             "&bNew Version: &c" + getLatestVersionName() + "&r\n" +
@@ -242,11 +234,11 @@ public class Updater implements Listener {
     }
 
     public void sendNoUpdateMessage(Player sender) {
-        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', AdminPanelMain.getPrefix() + "&a No Updates Available!"));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', CAPluginMain.getPrefix() + "&a No Updates Available!"));
     }
 
     public void sendNoUpdateMessage(ConsoleCommandSender sender) {
-        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', AdminPanelMain.getPrefix() + "&a No Updates Available!"));
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', CAPluginMain.getPrefix() + "&a No Updates Available!"));
     }
 
     /**
@@ -266,7 +258,7 @@ public class Updater implements Listener {
             if (!downloadPath.exists()) {
                 downloadPath.createNewFile();
             }
-            URL downloadURL = new URL("https://api.spiget.org/v2/resources/" + resourceID + "/download");
+            URL downloadURL = new URL("https://github.com/HappyBavarian07/CA-Plugin/releases/download/" + getLatestVersionName() + "/CA-Plugin-" + getLatestVersionName() + ".jar");
             FileUtils.copyURLToFile(downloadURL, downloadPath);
             downloadPath.renameTo(new File(plugin.getDataFolder() + "/downloaded-update/CA-Plugin-" + getLatestVersionName() + ".jar"));
             downloadPath = new File(plugin.getDataFolder() + "/downloaded-update/CA-Plugin-" + getLatestVersionName() + ".jar");
@@ -306,10 +298,6 @@ public class Updater implements Listener {
         }
     }
 
-    public Resource getResource() {
-        return resource;
-    }
-
     public String getPluginVersion() {
         plugin.getFileLogger().writeToLog(Level.INFO, "Requested Plugin Version -> " + plugin.getDescription().getVersion(), "Updater");
         return plugin.getDescription().getVersion();
@@ -322,14 +310,14 @@ public class Updater implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        if (player.hasPermission("adminpanel.updatenotify")) {
+        if (player.hasPermission("ca.admin.update")) {
             JSONObject jsonObject = getObjectFromWebsite("https://api.spiget.org/v2/resources/" + resourceID + "/updates/latest");
             try {
                 String descriptionEncoded = jsonObject.getString("description");
                 String descriptionDecoded = html2text(new String(Base64.getDecoder().decode(descriptionEncoded)));
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&',
                         " &cPlugin outdated! &6Please download the new version on&r\n" +
-                                "&6" + resource.getDownloadLink() + "\n" +
+                                "&6https://www.spigotmc.org/resources/craft-attack-plugin-german-mysql-discord-bot.98642/\n" +
                                 "&6or just activate automatic updating and replacing in the Config!\n" +
                                 "&bCurrent Version: &c" + getPluginVersion() + "&r\n" +
                                 "&bNew Version: &c" + getLatestVersionName() + "&r\n" +
@@ -343,7 +331,7 @@ public class Updater implements Listener {
                 if (plugin.getConfig().getBoolean("CA.settings.Updater.downloadPluginUpdate") &&
                         plugin.getConfig().getBoolean("CA.settings.Updater.automaticReplace")) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aThe new version was downloaded automatically and the old version was automatically replaced! \n" +
-                            "&aYou just need to reload the plugin via Plugin Manager, / reload, / restart or / stop / start"));
+                            "&aYou just need to reload the plugin via / reload, / restart or / stop / start"));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();

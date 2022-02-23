@@ -61,6 +61,7 @@ permissions:
         children:
           ca.admin.orga: true
           ca.admin.fehler.worldcheckerisdis: true
+          ca.admin.update: true
           ca.admin.debug: true
           ca.admin.setspawnloc: true
           ca.admin.control: true

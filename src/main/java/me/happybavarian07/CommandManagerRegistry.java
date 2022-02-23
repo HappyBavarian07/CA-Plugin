@@ -104,7 +104,7 @@ public class CommandManagerRegistry implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 if (args.length == 0) {
-                    sender.sendMessage(lgm.getMessage("Player.TooFewArguments", (sender instanceof Player) ? (Player) sender : null));
+                    sender.sendMessage(lgm.getMessage("Player.Commands.TooFewArguments", (sender instanceof Player) ? (Player) sender : null));
                     return true;
                 }
                 return cm.onCommand(sender, args);
@@ -125,6 +125,7 @@ public class CommandManagerRegistry implements CommandExecutor, TabCompleter {
                     if (args.length == 0) {
                         return Utils.emptyList();
                     }
+                    //System.out.println("Test 1");
                     return cm.onTabComplete(sender, cmd, label, args);
                 } catch (NullPointerException e) {
                     e.printStackTrace();
