@@ -4,6 +4,8 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
+import de.happybavarian07.adminpanel.main.AdminPanelMain;
+import de.happybavarian07.adminpanel.utils.VersionComparator;
 import de.slikey.effectlib.EffectManager;
 import de.tr7zw.nbtapi.NBTContainer;
 import de.tr7zw.nbtapi.NBTItem;
@@ -27,10 +29,7 @@ import me.happybavarian07.discord.Discord;
 import me.happybavarian07.language.LanguageFile;
 import me.happybavarian07.language.LanguageManager;
 import me.happybavarian07.language.OldLanguageFileUpdater;
-import me.happybavarian07.listeners.BedListener;
-import me.happybavarian07.listeners.CraftAttackEvents;
-import me.happybavarian07.listeners.LobbyEventListener;
-import me.happybavarian07.listeners.PlayerManager;
+import me.happybavarian07.listeners.*;
 import me.happybavarian07.mysql.MySQLHandler;
 import me.rockyhawk.commandpanels.openpanelsmanager.PanelPosition;
 import net.dv8tion.jda.api.entities.Activity;
@@ -55,6 +54,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -82,7 +82,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
     public FileManager fm;
     public Material waehrung;
     public BukkitTask spawnvorgang;
-    int repeattaskmoveevent;
+    public int repeattaskmoveevent;
     List<String> staff = new ArrayList<>();
     StartUpLogger logger;
     PluginManager pm;
@@ -100,7 +100,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
     private boolean discordEnabled;
     private CommandManagerRegistry commandManagerRegistry;
     private PluginFileLogger fileLogger;
-    private Updater updater;
+    private de.happybavarian07.adminpanel.utils.NewUpdater updater;
     private OldLanguageFileUpdater langFileUpdater;
 
     public static CAPluginMain getPlugin() {
@@ -147,12 +147,16 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         return fileLogger;
     }
 
-    public Updater getUpdater() {
+    public de.happybavarian07.adminpanel.utils.NewUpdater getUpdater() {
         return updater;
     }
 
     public OldLanguageFileUpdater getLangFileUpdater() {
         return langFileUpdater;
+    }
+
+    public String getPluginVersion(Plugin plugin) {
+        return plugin.getDescription().getVersion();
     }
 
     public void onEnable() {
@@ -169,7 +173,12 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         worldChangeCheck = getConfig().getBoolean("CA.world.Access_Check");
         languageManager = new LanguageManager(this, new File(getDataFolder(), "/languages"));
         langFileUpdater = new OldLanguageFileUpdater(this);
-        updater = new Updater(this, 98642);
+        if (Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
+            updater = new de.happybavarian07.adminpanel.utils.NewUpdater(AdminPanelMain.getPlugin(), 98642, "CA-Plugin-%version%.jar", this,
+                    "https://github.com/HappyBavarian07/CA-Plugin/releases/latest/download/CA-Plugin-" + getPluginVersion(this) + ".jar", true);
+        } else {
+            logger.spacer().coloredMessage(ChatColor.RED, "The Plugin Admin-Panel is not installed and because of that the Updater can't function!");
+        }
         commandManagerRegistry = new CommandManagerRegistry(this);
         fileLogger = new PluginFileLogger();
         if (!fileLogger.getLogFile().exists()) {
@@ -328,34 +337,23 @@ public class CAPluginMain extends JavaPlugin implements Listener {
             }
             languageManager.reloadLanguages(null, false);
         }
-        if (getConfig().getBoolean("CA.settings.Updater.checkForUpdates")) {
-            updater.checkForUpdates(true);
-            if (updater.updateAvailable()) {
-                updater.downloadPlugin(getConfig().getBoolean("CA.settings.Updater.automaticReplace"), false, true);
-            }
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    updater.checkForUpdates(false);
-                    if (updater.updateAvailable()) {
-                        updater.downloadPlugin(getConfig().getBoolean("CA.settings.Updater.automaticReplace"), false, true);
-                    }
+        if (Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
+            updater.setVersionComparator(VersionComparator.SEMATIC_VERSION);
+            if (plugin.getConfig().getBoolean("CA.settings.Updater.checkForUpdates")) {
+                updater.checkForUpdates(true);
+                if (updater.updateAvailable()) {
+                    updater.downloadLatestUpdate(plugin.getConfig().getBoolean("CA.settings.Updater.automaticReplace"), plugin.getConfig().getBoolean("Plugin.Updater.downloadPluginUpdate"), true);
                 }
-            }.runTaskTimer(plugin, (getConfig().getLong("CA.settings.Updater.UpdateCheckTime") * 60 * 20), (getConfig().getLong("CA.settings.Updater.UpdateCheckTime") * 60 * 20));
-        }
-    }
-
-    @EventHandler
-    public void onJoin(PlayerJoinEvent e) {
-        if (e.getPlayer().isOp()) {
-            addStaff(e.getPlayer().getName());
-        }
-    }
-
-    @EventHandler
-    public void onQuit(PlayerQuitEvent e) {
-        if (isStaff(e.getPlayer().getName())) {
-            removeStaff(e.getPlayer().getName());
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        updater.checkForUpdates(false);
+                        if (updater.updateAvailable()) {
+                            updater.downloadLatestUpdate(plugin.getConfig().getBoolean("CA.settings.Updater.automaticReplace"), plugin.getConfig().getBoolean("Plugin.Updater.downloadPluginUpdate"), true);
+                        }
+                    }
+                }.runTaskTimer(plugin, (plugin.getConfig().getLong("CA.settings.Updater.UpdateCheckTime") * 60 * 20), (plugin.getConfig().getLong("CA.settings.Updater.UpdateCheckTime") * 60 * 20));
+            }
         }
     }
 
@@ -446,7 +444,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         logger.message("(World Change, JoinEvent, Elytra, ...)");
         pm2.registerEvents(new CraftAttackEvents(this), this);
         pm2.registerEvents(new PlayerManager(this), this);
-        pm2.registerEvents(this, this);
+        pm2.registerEvents(new MoreCraftAttackEvents(this), this);
         logger.message("§6Afk Events§r");
         pm2.registerEvents(new afkcommand(), this);
         logger.message("§6Bed Events§r");
@@ -528,108 +526,6 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         recipe.setIngredient('C', Objects.requireNonNull(Material.matchMaterial(Objects.requireNonNull(getConfig().getString("CA.world.CraftingRecipes.Player_heads.Zutat2")).toUpperCase())));
         recipe.setIngredient('D', Objects.requireNonNull(Material.matchMaterial(Objects.requireNonNull(getConfig().getString("CA.world.CraftingRecipes.Player_heads.Zutat4")).toUpperCase())));
         return recipe;
-    }
-
-    @SuppressWarnings("deprecation")
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onMove(PlayerMoveEvent e) {
-        if (e.getPlayer().getWorld().getName().equals(getConfig().getString("CA.world.CraftAttack_World"))) {
-            if (e.getPlayer().hasMetadata("SpawnTeleportAnfrage")) {
-                if (Bukkit.getScheduler().getPendingTasks().contains(spawnvorgang)) {
-                    Bukkit.getScheduler().cancelTask(spawnvorgang.getTaskId());
-                }
-                e.getPlayer().sendMessage("§cSpawn Teleport abgebrochen, da du dich bewegt hast!");
-                e.getPlayer().removeMetadata("SpawnTeleportAnfrage", plugin);
-            }
-            e.getPlayer().getItemInHand();
-            if (e.getPlayer().getItemInHand().hasItemMeta() && Objects.requireNonNull(e.getPlayer().getItemInHand().getItemMeta()).getDisplayName().equals("§1R§2e§3m§4o§5t§6e §7C§8o§9n§at§br§co§el") && e.getPlayer().getItemInHand().getType() == Material.LEVER) {
-                if (e.getPlayer().hasPermission("ca.admin.troll")) {
-                    if (Objects.requireNonNull(e.getPlayer().getItemInHand().getItemMeta().getLore()).isEmpty()) {
-                        return;
-                    }
-                    Player target = Bukkit.getPlayer(Objects.requireNonNull(Objects.requireNonNull(e.getPlayer().getItemInHand().getItemMeta()).getLore()).get(0).replace("§4Target locked: §5", ""));
-                    assert target != null;
-                    if (!isinSpawn(target.getLocation(), e.getPlayer().getLocation(), 5)) {
-                        e.getPlayer().sendMessage("§aDein Target ist nicht in deiner Reichweite!");
-                        return;
-                    }
-                    PacketContainer packet1 = pman.createPacket(PacketType.Play.Server.POSITION);
-                    packet1.getIntegers().write(0, target.getEntityId());
-                    packet1.getDoubles().write(0, e.getPlayer().getLocation().getX());
-                    packet1.getDoubles().write(1, e.getPlayer().getLocation().getY());
-                    packet1.getDoubles().write(2, e.getPlayer().getLocation().getZ() + 1);
-                    packet1.getFloat().write(0, e.getPlayer().getLocation().getYaw());
-                    packet1.getFloat().write(1, e.getPlayer().getLocation().getPitch());
-                    packet1.getModifier().writeDefaults();
-                    packet1.getCombatEvents().writeDefaults();
-                    packet1.getHands().writeDefaults();
-
-                    try {
-                        pman.sendServerPacket(target, packet1);
-                    } catch (InvocationTargetException e1) {
-                        throw new RuntimeException("Cannot send packet " + packet1, e1);
-                    }
-                    //e.setCancelled(true);
-                    return;
-                }
-            }
-            Location blockloc = e.getPlayer().getLocation().add(0, -1, 0);
-            Location spawnmiddleloc;
-            if(spawnconfig == null || spawnconfig.getString("CraftAttack.Spawn.World") == null) {
-                return;
-            } else {
-                World world = Bukkit.getWorld(spawnconfig.getString("CraftAttack.Spawn.World"));
-                if (world == null) return;
-                double x = spawnconfig.getDouble("CraftAttack.Spawn.X");
-                double y = spawnconfig.getDouble("CraftAttack.Spawn.Y");
-                double Z = spawnconfig.getDouble("CraftAttack.Spawn.Z");
-                spawnmiddleloc = new Location(world, x, y, Z);
-            }
-            if (isinSpawn((blockloc.add(0, 1, 0)), spawnmiddleloc, getConfig().getDouble("CA.settings.Spawn.Radius")) && blockloc.add(0, -1, 0).getBlock().getType().equals(Material.GOLD_BLOCK)) {
-                if ((e.getPlayer().getGameMode() == GameMode.SPECTATOR) || (e.getPlayer().getGameMode() == GameMode.CREATIVE)) {
-                    return;
-                }
-                e.getPlayer().setMetadata("CraftAttackPluginSpawnElytra", new FixedMetadataValue(plugin, true));
-                e.getPlayer().setVelocity(e.getPlayer().getLocation().getDirection().setY(1).multiply(1));
-                repeattaskmoveevent = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
-                    int time = getConfig().getInt("CA.settings.Flytime");
-
-                    @Override
-                    public void run() {
-                        if (time >= 0 && !e.getPlayer().isOnGround() && e.getPlayer().hasMetadata("CraftAttackPluginSpawnElytra")) {
-                            if (time < 60) {
-                                e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§4§lFlytime: " + (time) + " Seconds left"));
-                            } else {
-                                e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§a§lFlytime: " + (time / 60) + " Minutes left"));
-                            }
-                            time--;
-                        } else {
-                            e.getPlayer().removeMetadata("CraftAttackPluginSpawnElytra", plugin);
-                            Bukkit.getScheduler().cancelTask(repeattaskmoveevent);
-                            time = getConfig().getInt("CA.settings.Flytime");
-                        }
-                    }
-                }, 20L, 20L);
-            }
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    @EventHandler
-    public void onIact(PlayerInteractEvent e) {
-        if (e.getAction().equals(Action.RIGHT_CLICK_AIR)) {
-            if (e.getPlayer().getItemInHand().getType() == Material.FIREWORK_ROCKET) {
-                if (e.getPlayer().hasMetadata("CraftAttackPluginSpawnElytra")) {
-                    e.getPlayer().setVelocity(e.getPlayer().getLocation().getDirection().multiply(2));
-                    e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 100, (float) 1.0);
-                    int i = 0;
-                    while (!Objects.requireNonNull(e.getPlayer().getInventory().getItem(i)).isSimilar(e.getItem())) {
-                        i++;
-                    }
-                    Objects.requireNonNull(e.getPlayer().getInventory().getItem(i)).setAmount(Objects.requireNonNull(e.getPlayer().getInventory().getItem(i)).getAmount() - 1);
-                }
-            }
-        }
     }
 
     public boolean isinSpawn(Location block, Location plotMiddel, double radius) {
@@ -761,23 +657,6 @@ public class CAPluginMain extends JavaPlugin implements Listener {
 
     public File getPrefixFile() {
         return prefixfile;
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onChat(AsyncPlayerChatEvent e) {
-        Player player = e.getPlayer();
-        String MessageSplitter = languageManager.getMessage("Chat.Splitter", player);
-        String PlayerPrefix = Utils.getPrefixFromConfig(player).getInGamePrefix();
-        String PlayerSuffix = Utils.getPrefixFromConfig(player).getInGameSuffix();
-        try {
-            if (player.getWorld().getName().equals(plugin.getConfig().getString("CA.world.CraftAttack_World"))) {
-                e.setMessage(Utils.formatChatMessage(e.getPlayer(), e.getMessage(),
-                        player.hasPermission("ca.chat.color"),
-                        player.hasPermission("ca.chat.placeholders")));
-                e.setFormat(PlayerPrefix + player.getDisplayName() + PlayerSuffix + MessageSplitter + e.getMessage());
-            }
-        } catch (UnknownFormatConversionException ignored) {
-        }
     }
 
     public StartUpLogger getStartUpLogger() {

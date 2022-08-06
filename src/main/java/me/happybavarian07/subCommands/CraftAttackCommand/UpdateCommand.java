@@ -3,11 +3,10 @@ package me.happybavarian07.subCommands.CraftAttackCommand;/*
  * @Date 24.12.2021 | 14:19
  */
 
-import de.happybavarian07.utils.Utils;
+import de.happybavarian07.adminpanel.utils.NewUpdater;
+import de.happybavarian07.adminpanel.utils.Utils;
 import me.happybavarian07.SubCommand;
 import me.happybavarian07.main.CAPluginMain;
-import me.happybavarian07.main.Updater;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.json.JSONObject;
@@ -17,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UpdateCommand extends SubCommand {
-    private final Updater updater = plugin.getUpdater();
+    private final NewUpdater updater = plugin.getUpdater();
 
     @Override
     public boolean onCommand(Player player, String[] args) {
@@ -27,14 +26,14 @@ public class UpdateCommand extends SubCommand {
         boolean check = updater.updateAvailable();
         if (args[0].equalsIgnoreCase("check")) {
             if (check) {
-                updater.sendUpdateMessage(player);
+                updater.getMessages().sendUpdateMessage(player);
             } else {
-                updater.sendNoUpdateMessage(player);
+                updater.getMessages().sendNoUpdateMessage(player);
             }
         } else if (args[0].equalsIgnoreCase("download")) {
             if (check) {
                 try {
-                    updater.downloadPlugin(false, true, true);
+                    updater.downloadLatestUpdate(false, true, true);
                     player.sendMessage(Utils.chat(
                             "&aNew Version now available in the downloaded-update Folder! (Further Actions required)"));
                 } catch (Exception e) {
@@ -42,11 +41,11 @@ public class UpdateCommand extends SubCommand {
                     player.sendMessage(Utils.chat(CAPluginMain.getPrefix() + " &cSomething went completely wrong!"));
                 }
             } else {
-                updater.sendNoUpdateMessage(player);
+                updater.getMessages().sendNoUpdateMessage(player);
             }
         } else if (args[0].equalsIgnoreCase("forcedownload")) {
             try {
-                updater.downloadPlugin(false, true, true);
+                updater.downloadLatestUpdate(false, true, true);
                 player.sendMessage(Utils.chat(CAPluginMain.getPrefix() + "&aForce Download finished!"));
                 player.sendMessage(Utils.chat(CAPluginMain.getPrefix() +
                         "&aNew Version now available in the downloaded-update Folder! (Further Actions required)"));
@@ -57,18 +56,18 @@ public class UpdateCommand extends SubCommand {
         } else if (args[0].equalsIgnoreCase("replace")) {
             if (check) {
                 try {
-                    updater.downloadPlugin(true, true, true);
+                    updater.downloadLatestUpdate(true, true, true);
                     player.sendMessage(Utils.chat(CAPluginMain.getPrefix() + "&aNew Version now available to play! (No further Actions required)"));
                 } catch (Exception e) {
                     e.printStackTrace();
                     player.sendMessage(Utils.chat(CAPluginMain.getPrefix() + " &cSomething went completely wrong!"));
                 }
             } else {
-                updater.sendNoUpdateMessage(player);
+                updater.getMessages().sendNoUpdateMessage(player);
             }
         } else if (args[0].equalsIgnoreCase("forcereplace")) {
             try {
-                updater.downloadPlugin(true, true, true);
+                updater.downloadLatestUpdate(true, true, true);
                 player.sendMessage(Utils.chat(CAPluginMain.getPrefix() + "&aForce Replace finished!"));
                 player.sendMessage(Utils.chat(CAPluginMain.getPrefix() + "&aNew Version now available to play! (No further Actions required)"));
             } catch (Exception e) {

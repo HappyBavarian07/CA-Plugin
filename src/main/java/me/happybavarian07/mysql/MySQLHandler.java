@@ -27,7 +27,7 @@ public class MySQLHandler {
     public MySQLHandler(boolean mySQLdisabled) {
         this.plugin = CAPluginMain.getPlugin();
         this.mySQLDisabled = mySQLdisabled;
-        System.out.println("Boolean MySQL: " + mySQLdisabled + "!!!!!!!!!!!!!" + !mySQLdisabled);
+        //System.out.println("Boolean MySQL: " + mySQLdisabled + "!!!!!!!!!!!!!" + !mySQLdisabled);
         if (mySQLdisabled) {
             configFile = new File(plugin.getDataFolder() + "/savedData.yml");
             if (!configFile.exists()) {

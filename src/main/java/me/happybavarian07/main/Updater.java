@@ -1,6 +1,6 @@
 package me.happybavarian07.main;
 
-import de.happybavarian07.utils.PluginUtils;
+import de.happybavarian07.adminpanel.utils.PluginUtils;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

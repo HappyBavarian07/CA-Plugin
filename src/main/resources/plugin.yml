@@ -4,6 +4,8 @@ api-version: 1.13
 version: ${project.version}
 author: HappyBavarian07
 depend: [ProtocolLib, PlaceholderAPI, EffectLib, CommandPanels]
+softdepend:
+  - Admin-Panel
 commands:
   cainfos:
     usage: /cainfos

@@ -6,7 +6,7 @@
 
     <groupId>me.happybavarian07.main</groupId>
     <artifactId>CA-Plugin</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <packaging>jar</packaging>
 
     <name>CA-Plugin</name>
@@ -103,7 +103,7 @@
         <dependency>
             <groupId>de.tr7zw</groupId>
             <artifactId>item-nbt-api-plugin</artifactId>
-            <version>2.9.0</version>
+            <version>2.10.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -115,7 +115,7 @@
         <dependency>
             <groupId>com.elmakers.mine.bukkit</groupId>
             <artifactId>EffectLib</artifactId>
-            <version>9.0</version>
+            <version>9.4</version>
             <scope>provided</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.dv8tion/JDA -->
@@ -135,8 +135,8 @@
         <dependency>
             <groupId>io.github.happybavarian07</groupId>
             <artifactId>Admin-Panel</artifactId>
-            <version>7.5.0</version>
-            <scope>compile</scope>
+            <version>8.3.2</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

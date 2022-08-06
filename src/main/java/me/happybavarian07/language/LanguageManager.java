@@ -1,7 +1,8 @@
 package me.happybavarian07.language;
 
-import de.happybavarian07.utils.Utils;
+import de.happybavarian07.adminpanel.utils.Utils;
 import me.happybavarian07.main.CAPluginMain;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -102,6 +103,14 @@ public class LanguageManager {
         registeredLanguages.remove(langName);
     }
 
+    public String format(Player player, String message, String prefix) {
+        if(Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
+            return Utils.format(player, message, prefix);
+        } else {
+            return me.happybavarian07.main.Utils.format(player, message, prefix);
+        }
+    }
+
     public String getMessage(String path, Player player) {
         LanguageFile langFile = getCurrentLang();
         LanguageConfig langConfig = langFile.getLangConfig();
@@ -110,7 +119,7 @@ public class LanguageManager {
         if (langConfig.getConfig().getString("Messages." + path) == null || !langConfig.getConfig().contains("Messages." + path))
             return "null path: Messages." + path;
 
-        return Utils.format(player, Objects.requireNonNull(langConfig.getConfig().getString("Messages." + path)), CAPluginMain.getPrefix());
+        return format(player, Objects.requireNonNull(langConfig.getConfig().getString("Messages." + path)), CAPluginMain.getPrefix());
     }
 
     public String getMessage(String path, Player player, String langName) {
@@ -121,7 +130,7 @@ public class LanguageManager {
         if (langConfig.getConfig().getString("Messages." + path) == null || !langConfig.getConfig().contains("Messages." + path))
             return "null path: Messages." + path;
 
-        return Utils.format(player, Objects.requireNonNull(langConfig.getConfig().getString("Messages." + path)), CAPluginMain.getPrefix());
+        return format(player, Objects.requireNonNull(langConfig.getConfig().getString("Messages." + path)), CAPluginMain.getPrefix());
     }
 
     public ItemStack getItem(String path, Player player) {
@@ -152,12 +161,12 @@ public class LanguageManager {
         item = new ItemStack(material, 1);
         ItemMeta meta = item.getItemMeta();
         for (String s : lore) {
-            loreWithPlaceholders.add(Utils.format(player, s, CAPluginMain.getPrefix()));
+            loreWithPlaceholders.add(format(player, s, CAPluginMain.getPrefix()));
         }
         assert meta != null;
         meta.setLore(loreWithPlaceholders);
         assert displayName != null;
-        meta.setDisplayName(Utils.format(player, displayName, CAPluginMain.getPrefix()));
+        meta.setDisplayName(format(player, displayName, CAPluginMain.getPrefix()));
         if (langConfig.getConfig().getBoolean("Items." + path + ".enchanted", false)) {
             meta.addEnchant(Enchantment.DURABILITY, 0, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -194,12 +203,12 @@ public class LanguageManager {
         item = new ItemStack(material, 1);
         ItemMeta meta = item.getItemMeta();
         for (String s : lore) {
-            loreWithPlaceholders.add(Utils.format(player, s, CAPluginMain.getPrefix()));
+            loreWithPlaceholders.add(format(player, s, CAPluginMain.getPrefix()));
         }
         assert meta != null;
         meta.setLore(loreWithPlaceholders);
         assert displayName != null;
-        meta.setDisplayName(Utils.format(player, displayName, CAPluginMain.getPrefix()));
+        meta.setDisplayName(format(player, displayName, CAPluginMain.getPrefix()));
         if (langConfig.getConfig().getBoolean("Items." + path + ".enchanted", false)) {
             meta.addEnchant(Enchantment.DURABILITY, 0, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
@@ -215,7 +224,7 @@ public class LanguageManager {
             return "null config";
         if (langConfig.getConfig().getString("MenuTitles." + path) == null || !langConfig.getConfig().contains("MenuTitles." + path))
             return "null path: MenuTitles." + path;
-        return Utils.format(player, Objects.requireNonNull(langConfig.getConfig().getString("MenuTitles." + path)), CAPluginMain.getPrefix());
+        return format(player, Objects.requireNonNull(langConfig.getConfig().getString("MenuTitles." + path)), CAPluginMain.getPrefix());
     }
 
     public String getMenuTitle(String path, Player player) {
@@ -225,6 +234,6 @@ public class LanguageManager {
             return "null config";
         if (langConfig.getConfig().getString("MenuTitles." + path) == null || !langConfig.getConfig().contains("MenuTitles." + path))
             return "null path: MenuTitles." + path;
-        return Utils.format(player, Objects.requireNonNull(langConfig.getConfig().getString("MenuTitles." + path)), CAPluginMain.getPrefix());
+        return format(player, Objects.requireNonNull(langConfig.getConfig().getString("MenuTitles." + path)), CAPluginMain.getPrefix());
     }
 }

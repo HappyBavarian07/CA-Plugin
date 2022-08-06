@@ -6,15 +6,12 @@ package me.happybavarian07.commandManagers;/*
 import me.happybavarian07.CommandData;
 import me.happybavarian07.CommandManager;
 import me.happybavarian07.SubCommand;
-import me.happybavarian07.main.Utils;
 import me.happybavarian07.subCommands.CraftAttackCommand.*;
-import me.happybavarian07.subCommands.DebugCommands.PrefixesCommand;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @CommandData()
@@ -49,7 +46,9 @@ public class CraftAttackCommandManager extends CommandManager {
         commands.add(new CASpawnCommand());
         commands.add(new SelectorInvCommand());
         commands.add(new HelpCommand());
-        commands.add(new UpdateCommand());
+        if(Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
+            commands.add(new UpdateCommand());
+        }
     }
 
     public ArrayList<SubCommand> getSubCommands() {
