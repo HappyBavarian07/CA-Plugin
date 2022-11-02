@@ -68,8 +68,8 @@ public class Discord extends ListenerAdapter implements Listener {
             e.printStackTrace();
         }
         this.discordVerify = new DiscordVerify(bot);
-        this.consoleLogChannel = this.bot.getTextChannelById(config.getString("Channels.ConsoleLogChannel"));
-        this.minecraftChatChannel = this.bot.getTextChannelById(config.getString("Channels.MinecraftChatChannel"));
+        this.consoleLogChannel = this.bot.getTextChannelById(Objects.requireNonNull(config.getString("Channels.ConsoleLogChannel")));
+        this.minecraftChatChannel = this.bot.getTextChannelById(Objects.requireNonNull(config.getString("Channels.MinecraftChatChannel")));
         register();
         logger.coloredMessage(ChatColor.GOLD, "Successfully connected to the Server! Bot online!").coloredSpacer(ChatColor.GREEN);
     }

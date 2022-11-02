@@ -34,7 +34,7 @@ public class TrollVanishCommand implements CommandExecutor {
                 // Vanish other
                 Player target = Bukkit.getPlayerExact(args[0]);
                 if(target == null) {
-                    p.sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.PlayerIsNull", p).replace("%target_name%", target.getName()));
+                    p.sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.PlayerIsNull", p, false).replace("%target_name%", target.getName()));
                     return true;
                 }
                 for(Player player : Bukkit.getOnlinePlayers()) {
@@ -55,7 +55,7 @@ public class TrollVanishCommand implements CommandExecutor {
                 // Error Message to many Arguments
             }
         } else {
-            sender.sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Console.ExecutesPlayerCommand", null));
+            sender.sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Console.ExecutesPlayerCommand", null, false));
         }
         return true;
     }

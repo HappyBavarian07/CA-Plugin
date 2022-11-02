@@ -4,32 +4,44 @@ package me.happybavarian07.subCommands.MarkerCommands;/*
  */
 
 import me.happybavarian07.Marker;
-import me.happybavarian07.SubCommand;
+import me.happybavarian07.commandmanagement.CommandData;
+import me.happybavarian07.commandmanagement.SubCommand;
 import me.happybavarian07.events.CreateCraftAttackMarkerEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@CommandData(playerRequired = true)
 public class MarkerAddCommand extends SubCommand {
+    public MarkerAddCommand(String mainCommandName) {
+        super(mainCommandName);
+    }
+
     @Override
-    public boolean onCommand(Player player, String[] args) {
+    public boolean onPlayerCommand(Player player, String[] args) {
         if(args.length != 1) {
             return false;
         }
         Marker marker = new Marker(player.getLocation(), player, args[0].replace("&", "").replace("§", ""));
         if(marker.getFile() != null && marker.getFile().exists()) {
-            player.sendMessage(lgm.getMessage("Player.Marker.MarkerAlreadyExists", player).replace("%marker%", marker.getName()));
+            player.sendMessage(lgm.getMessage("Player.Marker.MarkerAlreadyExists", player, false).replace("%marker%", marker.getName()));
             return true;
         }
         CreateCraftAttackMarkerEvent markerCreateEvent = new CreateCraftAttackMarkerEvent(marker, player);
         Bukkit.getPluginManager().callEvent(markerCreateEvent);
         if(!markerCreateEvent.isCancelled()) {
             marker.createMarkerFile();
-            player.sendMessage(lgm.getMessage("Player.Marker.MarkerSaved", player).replace("%marker%", marker.getName()));
+            player.sendMessage(lgm.getMessage("Player.Marker.MarkerSaved", player, false).replace("%marker%", marker.getName()));
         }
         return true;
+    }
+
+    @Override
+    public boolean onConsoleCommand(ConsoleCommandSender sender, String[] args) {
+        return false;
     }
 
     @Override

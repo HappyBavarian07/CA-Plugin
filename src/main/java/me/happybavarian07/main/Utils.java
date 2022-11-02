@@ -168,7 +168,7 @@ public class Utils {
             World playerworld = prefixChangeEvent.getPlayer().getWorld();
             World craftattackworld = plugin.getCraftAttackWorld();
             if (!playerworld.equals(craftattackworld)) return;
-            String MessageSplitter = CAPluginMain.getPlugin().getLanguageManager().getMessage("Chat.Splitter", null);
+            String MessageSplitter = CAPluginMain.getPlugin().getLanguageManager().getMessage("Chat.Splitter", null, false);
             String PlayerPrefix = prefixChangeEvent.getNewPrefix().getInGamePrefix();
             String PlayerSuffix = prefixChangeEvent.getNewPrefix().getInGameSuffix();
             if(player.hasPermission("ca.admin.orga")) {

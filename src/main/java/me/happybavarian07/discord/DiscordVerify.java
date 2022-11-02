@@ -1,5 +1,7 @@
 package me.happybavarian07.discord;
 
+import me.happybavarian07.language.LanguageManager;
+import me.happybavarian07.language.PlaceholderType;
 import me.happybavarian07.main.CAPluginMain;
 import me.happybavarian07.main.Utils;
 import me.happybavarian07.mysql.MySQLHandler;
@@ -29,6 +31,7 @@ public class DiscordVerify implements CommandExecutor, Listener {
     private final MySQLHandler mySQLHandler;
     private final JDA bot;
     private Guild guild;
+    private LanguageManager lgm;
 
     public DiscordVerify(JDA bot) {
         this.bot = bot;
@@ -37,6 +40,7 @@ public class DiscordVerify implements CommandExecutor, Listener {
         this.uuidCodeMap = new HashMap<>();
         this.uuidIdMap = new HashMap<>();
         this.verifiedMembers = new ArrayList<>();
+        this.lgm = plugin.getLanguageManager();
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
         plugin.getCommand("verify").setExecutor(this);
         plugin.getCommand("unlink").setExecutor(this);
@@ -50,31 +54,31 @@ public class DiscordVerify implements CommandExecutor, Listener {
         }
     }
 
-    // TODO Fertig machen
+    // TODO Fertig machen (Language Messages, Errors beheben)
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(plugin.getLanguageManager().getMessage("Console.ExecutesPlayerCommand", null));
+                sender.sendMessage(plugin.getLanguageManager().getMessage("Console.ExecutesPlayerCommand", null, false));
                 return true;
             }
             Player player = (Player) sender;
             if (command.getName().equalsIgnoreCase("verify")) {
                 if (mySQLHandler.isVerified(player.getUniqueId().toString())) {
-                    player.sendMessage(Utils.format(player, "&cSorry! You are already verified!", CAPluginMain.getPrefix()));
+                    player.sendMessage(lgm.getMessage("Player.Discord.LinkAccount.AlreadyVerified", player, false));
                     return true;
                 }
                 if (!uuidCodeMap.containsKey(player.getUniqueId())) {
-                    player.sendMessage(Utils.format(player, "&cNot pending verification process, %player_name%!", CAPluginMain.getPrefix()));
+                    player.sendMessage(lgm.getMessage("Player.Discord.LinkAccount.NoPendingVerifications", player, false));
                     return true;
                 }
                 if (args.length != 1) {
-                    player.sendMessage(plugin.getLanguageManager().getMessage(args.length > 1 ? "Player.Commands.TooManyArguments" : "Player.TooFewArguments", player));
+                    player.sendMessage(plugin.getLanguageManager().getMessage(args.length > 1 ? "Player.Commands.TooManyArguments" : "Player.TooFewArguments", player, false));
                     return true;
                 }
                 String actualCode = uuidCodeMap.get(player.getUniqueId());
                 if (!actualCode.equals(args[0])) {
-                    player.sendMessage(Utils.format(player, "&cCode is not valid! Check again, %player_name%!", CAPluginMain.getPrefix()));
+                    player.sendMessage(lgm.getMessage("Player.Discord.LinkAccount.CodeNotValid", player, false));
                     return true;
                 }
                 String discordId = uuidIdMap.get(player.getUniqueId());
@@ -82,7 +86,7 @@ public class DiscordVerify implements CommandExecutor, Listener {
                 if (target == null) {
                     uuidCodeMap.remove(player.getUniqueId());
                     uuidIdMap.remove(player.getUniqueId());
-                    player.sendMessage(Utils.format(player, "&cError! It seems that you left our Discord Server!", CAPluginMain.getPrefix()));
+                    player.sendMessage(lgm.getMessage("Player.Discord.LinkAccount.LeftDiscordServer", player, false));
                     return true;
                 }
                 uuidCodeMap.remove(player.getUniqueId());
@@ -92,24 +96,23 @@ public class DiscordVerify implements CommandExecutor, Listener {
                 guild.addRoleToMember(target, verifiedRole).queue();
                 target.getUser().openPrivateChannel().complete().sendMessage(":white_check_mark: **|** Verification successfully, you have linked your account with MC Account: " + player.getName()).queue();
                 target.getUser().openPrivateChannel().complete().sendMessage(":x: **|** This is not You! Contact the Server Administrator for Help! ").queue();
-                player.sendMessage(Utils.format(player, "&aYou have been verified correctly!\n&aYou linked your Account with " +
-                        "&a" + target.getUser().getName() + "#" + target.getUser().getDiscriminator() +
-                        "\n&aCheck your Discord!", CAPluginMain.getPrefix()));
+                lgm.addPlaceholder(PlaceholderType.MESSAGE, "%discord_name%", target.getUser().getName() + "#" + target.getUser().getDiscriminator(), false);
+                player.sendMessage(lgm.getMessage("Player.Discord.LinkAccount.SuccessfullyLinked", player, true));
                 mySQLHandler.setVerified(player.getUniqueId().toString(), true, discordId);
                 return true;
             }
             if (command.getName().equalsIgnoreCase("unlink")) {
                 if (!mySQLHandler.isVerified(player.getUniqueId().toString())) {
-                    player.sendMessage(Utils.format(player, "&cSorry! You are not verified!", CAPluginMain.getPrefix()));
+                    player.sendMessage(lgm.getMessage("Player.Discord.UnlinkAccount.NotVerified", player, false));
                     return true;
                 }
                 Member target = guild.getMemberById(mySQLHandler.getDiscordID(player.getUniqueId().toString()));
                 Role verifiedRole = guild.getRolesByName("Verified", false).get(0);
                 guild.removeRoleFromMember(target, verifiedRole).queue();
                 mySQLHandler.setVerified(player.getUniqueId().toString(), false, "");
-                player.sendMessage(Utils.format(player, "&aYou successfully unlinked your Account!", CAPluginMain.getPrefix()));
+                lgm.addPlaceholder(PlaceholderType.MESSAGE, "%discord_name%", target.getUser().getName() + "#" + target.getUser().getDiscriminator(), false);
+                player.sendMessage(lgm.getMessage("Player.Discord.UnlinkAccount.SuccessfullyUnlinked", player, true));
                 target.getUser().openPrivateChannel().complete().sendMessage(":x: **|** Your Account successfully has been unlinked!").queue();
-
             }
             return true;
         } catch (Exception e) {

@@ -92,7 +92,7 @@ public class LobbyEventListener implements Listener, CommandExecutor {
         if(config.getStringList("Lobby-Worlds").contains(world.getName())) {
             e.setMessage(Utils.format(e.getPlayer(), e.getMessage(), CAPluginMain.getPrefix()));
             e.setFormat(Utils.getPrefixFromConfig(e.getPlayer()).getInGamePrefix() + e.getPlayer().getName() + Utils.getPrefixFromConfig(e.getPlayer()).getInGameSuffix() +
-                    CAPluginMain.getPlugin().getLanguageManager().getMessage("Chat.Splitter", null) + e.getMessage());
+                    CAPluginMain.getPlugin().getLanguageManager().getMessage("Chat.Splitter", null, false) + e.getMessage());
         }
     }
 
@@ -114,16 +114,18 @@ public class LobbyEventListener implements Listener, CommandExecutor {
         if(config.getStringList("Lobby-Worlds").contains(world.getName())) {
             if(!isBuilding(e.getPlayer().getUniqueId())) {
                 if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock() != null && e.getClickedBlock().getType() == Material.ENDER_CHEST) {
-                    EffectManager em = new EffectManager(plugin);
-                    effect = new HelixEffect(em);
-                    effect.particle = Particle.DRAGON_BREATH;
-                    effect.type = EffectType.REPEATING;
-                    effect.radius = 10.5f;
-                    Location loc = (e.getPlayer().getLocation().add(0, 15, 0));
-                    effect.setLocation(loc);
+                    if(Bukkit.getPluginManager().isPluginEnabled("EffectLib")) {
+                        EffectManager em = new EffectManager(plugin);
+                        effect = new HelixEffect(em);
+                        effect.particle = Particle.DRAGON_BREATH;
+                        effect.type = EffectType.REPEATING;
+                        effect.radius = 10.5f;
+                        Location loc = (e.getPlayer().getLocation().add(0, 15, 0));
+                        effect.setLocation(loc);
+                        effect.start();
+                        effect.duration = 30 * 1000;
+                    }
                     e.setCancelled(true);
-                    effect.start();
-                    effect.duration = 30*1000;
                     SelectorInv.openSelectorInv(e.getPlayer());
                     return;
                 }
@@ -140,15 +142,15 @@ public class LobbyEventListener implements Listener, CommandExecutor {
             if(sender instanceof Player) {
                 Player p = (Player) sender;
                 if(!p.hasPermission("ca.admin.lobby.build")) {
-                    p.sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.NoPermissions", p));
+                    p.sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.NoPermissions", p, false));
                     return true;
                 }
                 if(!isBuilding(p.getUniqueId())) {
                     addBuilder(p.getUniqueId());
-                    p.sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Lobby.CanBuildNow", p));
+                    p.sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Lobby.CanBuildNow", p, false));
                 } else {
                     removeBuilder(p.getUniqueId());
-                    p.sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Lobby.CanNoLongerBuild", p));
+                    p.sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Lobby.CanNoLongerBuild", p, false));
                 }
             }
         }

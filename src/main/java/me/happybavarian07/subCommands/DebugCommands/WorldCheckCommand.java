@@ -3,15 +3,22 @@ package me.happybavarian07.subCommands.DebugCommands;/*
  * @Date 09.11.2021 | 16:41
  */
 
-import me.happybavarian07.SubCommand;
+import me.happybavarian07.commandmanagement.CommandData;
+import me.happybavarian07.commandmanagement.SubCommand;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@CommandData()
 public class WorldCheckCommand extends SubCommand {
+    public WorldCheckCommand(String mainCommandName) {
+        super(mainCommandName);
+    }
+
     @Override
-    public boolean onCommand(Player player, String[] args) {
+    public boolean onPlayerCommand(Player player, String[] args) {
         if(args.length != 0) {
             return false;
         }
@@ -19,6 +26,19 @@ public class WorldCheckCommand extends SubCommand {
             player.sendMessage("§3World Checking for Craft Attack is currently: §aenabled");
         } else {
             player.sendMessage("§aWorld Checking for Craft Attack is currently: §cdisabled");
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onConsoleCommand(ConsoleCommandSender sender, String[] args) {
+        if(args.length != 0) {
+            return false;
+        }
+        if (plugin.isWorldChangeCheck()) {
+            sender.sendMessage("§3World Checking for Craft Attack is currently: §aenabled");
+        } else {
+            sender.sendMessage("§aWorld Checking for Craft Attack is currently: §cdisabled");
         }
         return true;
     }

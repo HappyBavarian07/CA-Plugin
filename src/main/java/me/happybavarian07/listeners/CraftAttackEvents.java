@@ -29,7 +29,7 @@ public class CraftAttackEvents implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
-        String joinmessagewithoutplaceholders = plugin.getLanguageManager().getMessage("Player.Join", player);
+        String joinmessagewithoutplaceholders = plugin.getLanguageManager().getMessage("Player.Join", player, false);
 
         String joinmessagewithplaceholders = Utils.format(e.getPlayer(), joinmessagewithoutplaceholders, CAPluginMain.getPrefix());
 
@@ -72,6 +72,9 @@ public class CraftAttackEvents implements Listener {
                         Utils.setPlayerPrefix(player, Utils.getPrefixFromConfig(player));
                         player.sendMessage(CAPluginMain.getPrefix() + " §2Du bist jetzt in der §5Craft§6Attack§11 §2Welt angemeldet!");
                     } else {
+                        /*if(!player.getWorld().getName().equals(plugin.getConfig().getString("CA.world.CraftAttack_World"))) {
+
+                        }*/
                         player.removeMetadata("CamAccountScoreboardTag", plugin);
                         Utils.setPlayerPrefix(player, Utils.getPrefixFromConfig(player));
                         player.sendMessage(CAPluginMain.getPrefix() + " §2Du bist jetzt in der §5Craft§6Attack§11 §2Welt angemeldet!");
@@ -81,7 +84,7 @@ public class CraftAttackEvents implements Listener {
 
                     player.kickPlayer("§cDu wurdest gekickt da du kein offizieler Teilnehmer von Craft Attack bist!\n" + "\n"
                             + "§cFalls du glaubst das ist ein Fehler dann melde dich beim Craft Attack Team!\n" + "\n"
-                            + "§6Falls du dich f§r das n§chste CraftAttack registrieren willst dann gehe auf unsere Website: §4craftattackwebsite.test");
+                            + "§6Falls du dich f§r das n§chste CraftAttack registrieren willst dann sage dem Team bescheid!");
                 }
             } else {
                 if (player.hasPermission("ca.admin.worldcheckerisdis")) {
@@ -162,7 +165,7 @@ public class CraftAttackEvents implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        String quitmessage = CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Quit", p);
+        String quitmessage = CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Quit", p, false);
         e.setQuitMessage(quitmessage);
         p.setPlayerListHeader("");
         p.setPlayerListFooter("");

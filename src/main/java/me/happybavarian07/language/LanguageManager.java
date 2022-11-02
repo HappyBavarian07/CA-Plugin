@@ -1,32 +1,54 @@
 package me.happybavarian07.language;
 
+import de.happybavarian07.adminpanel.configupdater.ConfigUpdater;
 import de.happybavarian07.adminpanel.utils.Utils;
-import me.happybavarian07.main.CAPluginMain;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 
 public class LanguageManager {
-
     private final JavaPlugin plugin;
     private final File langFolder;
     private final Map<String, LanguageFile> registeredLanguages;
+    private final Map<String, Placeholder> placeholders;
+    private String prefix;
     private String currentLangName;
     private LanguageFile currentLang;
+    private PerPlayerLanguageHandler plhandler;
 
-    public LanguageManager(JavaPlugin plugin, File langFolder) {
+    public LanguageManager(JavaPlugin plugin, File langFolder, String prefix) {
+        this.prefix = prefix;
         this.plugin = plugin;
         this.langFolder = langFolder;
         this.registeredLanguages = new LinkedHashMap<>();
+        this.placeholders = new LinkedHashMap<>();
+    }
+
+    public String getPrefix() {
+        return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
+    }
+
+    public PerPlayerLanguageHandler getPlhandler() {
+        return plhandler;
+    }
+
+    public void setPlhandler(PerPlayerLanguageHandler plhandler) {
+        this.plhandler = plhandler;
     }
 
     public File getLangFolder() {
@@ -65,35 +87,89 @@ public class LanguageManager {
         if (fileArray != null) {
             for (File file : fileArray) {
                 LanguageFile languageFile = new LanguageFile(plugin, file.getName().replace(".yml", ""));
-                if (!registeredLanguages.containsValue(languageFile))
+                if (!registeredLanguages.containsValue(languageFile) && !languageFile.getLangName().equals("default"))
                     this.registeredLanguages.put(languageFile.getLangName(), languageFile);
-                if (log)
+                if (log && !languageFile.getLangName().equals("default"))
                     plugin.getLogger().log(Level.INFO, "Language: " + languageFile.getLangFile() + " successfully registered!");
             }
         }
     }
 
-    public void reloadLanguages(Player messageReceiver, Boolean log) {
-        addLanguagesToList(log);
-        for (String langFiles : registeredLanguages.keySet()) {
-            getLang(langFiles).getLangConfig().reloadConfig();
-            if (messageReceiver != null)
-                messageReceiver.sendMessage(getMessage("Plugin.ReloadedLanguageFile", messageReceiver)
-                        .replace("%language%", "" + getLang(langFiles).getLangFile()));
+    public void updateLangFiles() {
+        for (LanguageFile langFiles : getRegisteredLanguages().values()) {
+            try {
+                String resourceName = "languages/" + langFiles.getLangFile().getName();
+                if (plugin.getResource(resourceName) == null) {
+                    if (plugin.getResource("languages/" + plugin.getConfig().getString("CA.settings.languageForUpdates") + ".yml") != null) {
+                        resourceName = "languages/" + plugin.getConfig().getString("CA.settings.languageForUpdates") + ".yml";
+                    } else {
+                        resourceName = "languages/en.yml";
+                    }
+                }
+                // "Test.Options", "Items.PlayerManager.TrollMenu.VillagerSounds.true.Options"
+                ConfigUpdater.update(plugin, resourceName, langFiles.getLangFile(), Collections.emptyList());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        setCurrentLang(getLang(plugin.getConfig().getString("CA.settings.language")), log);
+        /*for (LanguageFile langFiles : getRegisteredLanguages().values()) {
+            String resourceName = "languages/" + langFiles.getLangFile().getName();
+            boolean nonDefaultLang = false;
+            if (plugin.getResource(resourceName) == null) {
+                if (plugin.getResource("languages/" + plugin.getConfig().getString("CA.settings.languageForUpdates") + ".yml") != null) {
+                    resourceName = "languages/" + plugin.getConfig().getString("CA.settings.languageForUpdates") + ".yml";
+                } else {
+                    resourceName = "languages/en.yml";
+                }
+                nonDefaultLang = true;
+            }
+            File oldFile = langFiles.getLangFile();
+            File newFile = new File(langFiles.getLangFile().getParentFile().getPath() + "/" + langFiles.getLangName() + "-new.yml");
+            YamlConfiguration newConfig = YamlConfiguration.loadConfiguration(newFile);
+            InputStream defaultStream;
+            defaultStream = plugin.getResource(resourceName);
+            if (defaultStream != null) {
+                YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultStream));
+                newConfig.setDefaults(defaultConfig);
+                newConfig.options().header(defaultConfig.options().header());
+            }
+            newConfig.options().copyDefaults(true);
+            try {
+                newConfig.save(newFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ((AdminPanelMain) plugin).getLangFileUpdater().updateFile(oldFile, newConfig, langFiles.getLangName(), nonDefaultLang);
+            newFile.delete();
+        }*/
+    }
+
+    public void reloadLanguages(CommandSender messageReceiver, Boolean log) {
+        addLanguagesToList(log);
+        updateLangFiles();
+        for (String langFiles : registeredLanguages.keySet()) {
+            getLang(langFiles, true).getLangConfig().reloadConfig();
+            if (messageReceiver != null) {
+                addPlaceholder(PlaceholderType.MESSAGE, "%language%", getLang(langFiles, true).getLangFile(), true);
+                messageReceiver.sendMessage(getMessage("Player.ReloadedLanguageFile", null, true));
+            }
+        }
+        setCurrentLang(getLang(plugin.getConfig().getString("CA.settings.language"), true), log);
     }
 
     public void addLang(LanguageFile langFile, String langName) {
-        if (registeredLanguages.containsKey(langName))
+        if (registeredLanguages.containsKey(langName) || langName.equals("default"))
             return;
         registeredLanguages.put(langName, langFile);
         plugin.getLogger().log(Level.INFO, "Language: " + langFile.getLangFile() + " successfully registered!");
     }
 
-    public LanguageFile getLang(String langName) throws NullPointerException {
+    public LanguageFile getLang(String langName, boolean throwException) throws NullPointerException {
         if (!registeredLanguages.containsKey(langName))
-            throw new NullPointerException("Language: " + langName + " not found!");
+            if (throwException)
+                throw new NullPointerException("Language: " + langName + " not found!");
+            else
+                return null;
         return registeredLanguages.get(langName);
     }
 
@@ -103,80 +179,224 @@ public class LanguageManager {
         registeredLanguages.remove(langName);
     }
 
-    public String format(Player player, String message, String prefix) {
-        if(Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
-            return Utils.format(player, message, prefix);
-        } else {
-            return me.happybavarian07.main.Utils.format(player, message, prefix);
+    public void addPlaceholder(PlaceholderType type, String key, java.io.Serializable value, boolean resetBefore) {
+        if (resetBefore) resetPlaceholders(type, null);
+        if (!placeholders.containsKey(key))
+            placeholders.put(key, new Placeholder(key, value, type));
+        else
+            placeholders.replace(key, placeholders.get(key), new Placeholder(key, value, type));
+    }
+
+    public void addPlaceholders(Map<String, Placeholder> placeholders, boolean resetBefore) {
+        if (resetBefore) resetPlaceholders(PlaceholderType.ALL, null);
+        this.placeholders.putAll(placeholders);
+    }
+
+    public void removePlaceholder(PlaceholderType type, String key) {
+        if (!placeholders.containsKey(key)) return;
+        if (!placeholders.get(key).getType().equals(type) && !placeholders.get(key).getType().equals(PlaceholderType.ALL))
+            return;
+
+        placeholders.remove(key);
+    }
+
+    public void removePlaceholders(PlaceholderType type, List<String> keys) {
+        for (String key : keys) {
+            if (!placeholders.containsKey(key)) continue;
+            if (!placeholders.get(key).getType().equals(type) && !placeholders.get(key).getType().equals(PlaceholderType.ALL))
+                continue;
+
+            this.placeholders.remove(key);
         }
     }
 
-    public String getMessage(String path, Player player) {
-        LanguageFile langFile = getCurrentLang();
+    public void resetPlaceholders(PlaceholderType type, @Nullable List<String> excludeKeys) {
+        List<String> keysToRemove = new ArrayList<>();
+        for (String key : placeholders.keySet()) {
+            if (excludeKeys != null && excludeKeys.contains(key)) continue;
+            if (!placeholders.get(key).getType().equals(type) && !placeholders.get(key).getType().equals(PlaceholderType.ALL))
+                continue;
+
+            keysToRemove.add(key);
+        }
+        removePlaceholders(type, keysToRemove);
+    }
+
+    public void resetSpecificPlaceholders(PlaceholderType type, @Nullable List<String> includeKeys) {
+        List<String> keysToRemove = new ArrayList<>();
+        for (String key : placeholders.keySet()) {
+            if (includeKeys != null && !includeKeys.contains(key)) continue;
+            if (!placeholders.get(key).getType().equals(type) && !placeholders.get(key).getType().equals(PlaceholderType.ALL))
+                continue;
+
+            keysToRemove.add(key);
+        }
+        removePlaceholders(type, keysToRemove);
+    }
+
+    public Map<String, Placeholder> getPlaceholders() {
+        return placeholders;
+    }
+
+    // TODO Add Message Array Mehod
+    public List<String> getMessageList(String path, Player player, boolean resetAfter) {
+        LanguageFile langFile = getLangOrPlayerLang(true, null, player);
+        LanguageConfig langConfig = langFile.getLangConfig();
+        if (langConfig == null || langConfig.getConfig() == null)
+            return Collections.singletonList("null config");
+        if (!langConfig.getConfig().contains("Messages." + path))
+            return Collections.singletonList("null path: Messages." + path);
+        List<String> unformattedList = langConfig.getConfig().getStringList("Messages." + path);
+        List<String> formattedList = new ArrayList<>();
+
+        if (placeholders.isEmpty()) return unformattedList;
+
+        for (String message : unformattedList) {
+            formattedList.add(Utils.format(player, replacePlaceholders(PlaceholderType.MESSAGELIST, message), prefix));
+        }
+
+        List<String> includedKeys = new ArrayList<>(getPlaceholderKeysInMessageArray(unformattedList, PlaceholderType.MESSAGELIST));
+        if (resetAfter) resetSpecificPlaceholders(PlaceholderType.MESSAGELIST, includedKeys);
+
+        return formattedList;
+    }
+
+    public List<String> getMessageList(String path, Player player, String langName, boolean resetAfter) {
+        LanguageFile langFile = getLangOrPlayerLang(false, langName, player);
+        LanguageConfig langConfig = langFile.getLangConfig();
+        if (langConfig == null || langConfig.getConfig() == null)
+            return Collections.singletonList("null config");
+        if (langConfig.getConfig().getString("Messages." + path) == null || !langConfig.getConfig().contains("Messages." + path))
+            return Collections.singletonList("null path: Messages." + path);
+        List<String> unformattedList = langConfig.getConfig().getStringList("Messages." + path);
+        List<String> formattedList = new ArrayList<>();
+
+        if (placeholders.isEmpty()) return unformattedList;
+
+        for (String message : unformattedList) {
+            formattedList.add(Utils.format(player, replacePlaceholders(PlaceholderType.MESSAGELIST, message), prefix));
+        }
+
+        List<String> includedKeys = new ArrayList<>(getPlaceholderKeysInMessageArray(unformattedList, PlaceholderType.MESSAGELIST));
+        if (resetAfter) resetSpecificPlaceholders(PlaceholderType.MESSAGELIST, includedKeys);
+
+        return formattedList;
+    }
+
+    public String getMessage(String path, Player player, boolean resetAfter) {
+        LanguageFile langFile = getLangOrPlayerLang(true, null, player);
         LanguageConfig langConfig = langFile.getLangConfig();
         if (langConfig == null || langConfig.getConfig() == null)
             return "null config";
         if (langConfig.getConfig().getString("Messages." + path) == null || !langConfig.getConfig().contains("Messages." + path))
             return "null path: Messages." + path;
 
-        return format(player, Objects.requireNonNull(langConfig.getConfig().getString("Messages." + path)), CAPluginMain.getPrefix());
+        String message = Utils.format(player, langConfig.getConfig().getString("Messages." + path), prefix);
+        if (placeholders.isEmpty()) return message;
+
+        List<String> includedKeys = new ArrayList<>(getPlaceholderKeysInMessage(message, PlaceholderType.MESSAGE));
+        message = replacePlaceholders(PlaceholderType.MESSAGE, message);
+        if (resetAfter) resetSpecificPlaceholders(PlaceholderType.MESSAGE, includedKeys);
+        return message;
     }
 
-    public String getMessage(String path, Player player, String langName) {
-        LanguageFile langFile = getLang(langName);
-        LanguageConfig langConfig = langFile.getLangConfig();
-        if (langConfig == null || langConfig.getConfig() == null)
-            return "null config";
-        if (langConfig.getConfig().getString("Messages." + path) == null || !langConfig.getConfig().contains("Messages." + path))
-            return "null path: Messages." + path;
+    public List<String> getPlaceholderKeysInMessage(String message, PlaceholderType type) {
+        List<String> keys = new ArrayList<>();
+        for (String key : placeholders.keySet()) {
+            if (!message.contains(key)) continue;
+            if (!placeholders.get(key).getType().equals(type) && !placeholders.get(key).getType().equals(PlaceholderType.ALL))
+                continue;
 
-        return format(player, Objects.requireNonNull(langConfig.getConfig().getString("Messages." + path)), CAPluginMain.getPrefix());
+            keys.add(key);
+        }
+        return keys;
     }
 
-    public ItemStack getItem(String path, Player player) {
-        LanguageFile langFile = getCurrentLang();
-        LanguageConfig langConfig = langFile.getLangConfig();
-        ItemStack error = new ItemStack(Material.BARRIER);
-        ItemMeta errorMeta = error.getItemMeta();
-        if (langConfig == null || langConfig.getConfig() == null) {
-            assert errorMeta != null;
-            errorMeta.setDisplayName("Language Config not found!");
-            errorMeta.setLore(Arrays.asList("If this happens often,", "please report to the Discord"));
-            error.setItemMeta(errorMeta);
-            return error;
+    public List<String> getPlaceholderKeysInMessageArray(List<String> messageArray, PlaceholderType type) {
+        List<String> keys = new ArrayList<>();
+        for (String message : messageArray) {
+            keys.addAll(getPlaceholderKeysInMessage(message, type));
         }
-        if (langConfig.getConfig().getString("Items." + path) == null || !langConfig.getConfig().contains("Items." + path)) {
-            assert errorMeta != null;
-            errorMeta.setDisplayName("Config Path not found!");
-            errorMeta.setLore(Arrays.asList("If this happens often,", "please report to the Discord", "Path: Items." + path));
-            error.setItemMeta(errorMeta);
-            return error;
+        return keys;
+    }
+
+    public String replacePlaceholders(PlaceholderType type, String message) {
+        for (String key : placeholders.keySet()) {
+            if (!placeholders.get(key).getType().equals(type) && !placeholders.get(key).getType().equals(PlaceholderType.ALL))
+                continue;
+
+            message = placeholders.get(key).replace(message);
         }
-        ItemStack item;
-        Material material = Material.matchMaterial(Objects.requireNonNull(langConfig.getConfig().getString("Items." + path + ".material")));
-        String displayName = langConfig.getConfig().getString("Items." + path + ".displayName");
-        List<String> lore = langConfig.getConfig().getStringList("Items." + path + ".lore");
-        List<String> loreWithPlaceholders = new ArrayList<>();
-        assert material != null;
-        item = new ItemStack(material, 1);
+        return message;
+    }
+
+    public ItemStack replacePlaceholders(Player player, ItemStack item) {
         ItemMeta meta = item.getItemMeta();
-        for (String s : lore) {
-            loreWithPlaceholders.add(format(player, s, CAPluginMain.getPrefix()));
-        }
         assert meta != null;
-        meta.setLore(loreWithPlaceholders);
-        assert displayName != null;
-        meta.setDisplayName(format(player, displayName, CAPluginMain.getPrefix()));
-        if (langConfig.getConfig().getBoolean("Items." + path + ".enchanted", false)) {
-            meta.addEnchant(Enchantment.DURABILITY, 0, true);
-            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        List<String> lore = meta.getLore();
+        List<String> loreWithPlaceholders = new ArrayList<>();
+        assert lore != null;
+        for (String s : lore) {
+            String temp = replacePlaceholders(PlaceholderType.ITEM, s);
+            loreWithPlaceholders.add(Utils.format(player, temp, prefix));
         }
+        meta.setLore(loreWithPlaceholders);
+        meta.setDisplayName(replacePlaceholders(PlaceholderType.ITEM, Utils.format(player, meta.getDisplayName(), prefix)));
         item.setItemMeta(meta);
         return item;
     }
 
-    public ItemStack getItem(String path, Player player, String langName) {
-        LanguageFile langFile = getLang(langName);
+    public ItemStack replacePlaceholders(Player player, ItemStack item, Map<String, Placeholder> placeholders) {
+        ItemMeta meta = item.getItemMeta();
+        assert meta != null;
+        List<String> lore = meta.getLore();
+        List<String> loreWithPlaceholders = new ArrayList<>();
+        assert lore != null;
+        for (String s : lore) {
+            String temp = replacePlaceholders(s, placeholders);
+            loreWithPlaceholders.add(Utils.format(player, temp, prefix));
+        }
+        meta.setLore(loreWithPlaceholders);
+        meta.setDisplayName(replacePlaceholders(Utils.format(player, meta.getDisplayName(), prefix), placeholders));
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public String replacePlaceholders(String message, Map<String, Placeholder> placeholders) {
+        for (String key : placeholders.keySet()) {
+            message = placeholders.get(key).replace(message);
+        }
+        return message;
+    }
+
+    public Map<String, Placeholder> getNewPlaceholderMap() {
+        return new HashMap<>();
+    }
+
+    public String getMessage(String path, Player player, String langName, boolean resetAfter) {
+        LanguageFile langFile = getLangOrPlayerLang(false, langName, player);
+        LanguageConfig langConfig = langFile.getLangConfig();
+        if (langConfig == null || langConfig.getConfig() == null)
+            return "null config";
+        if (langConfig.getConfig().getString("Messages." + path) == null || !langConfig.getConfig().contains("Messages." + path))
+            return "null path: Messages." + path;
+
+        String message = Utils.format(player, langConfig.getConfig().getString("Messages." + path), prefix);
+        if (placeholders.isEmpty()) return message;
+
+        List<String> includedKeys = new ArrayList<>(getPlaceholderKeysInMessage(message, PlaceholderType.MESSAGE));
+        message = replacePlaceholders(PlaceholderType.MESSAGE, message);
+        if (resetAfter) resetSpecificPlaceholders(PlaceholderType.MESSAGE, includedKeys);
+        return message;
+    }
+
+    public String getPermissionMessage(Player player, String permission) {
+        addPlaceholder(PlaceholderType.MESSAGE, "%permission%", permission, true);
+        return getMessage("Player.NoPermissions", player, true);
+    }
+
+    public ItemStack getItem(String path, Player player, boolean resetAfter) {
+        LanguageFile langFile = getLangOrPlayerLang(true, null, player);
         LanguageConfig langConfig = langFile.getLangConfig();
         ItemStack error = new ItemStack(Material.BARRIER);
         ItemMeta errorMeta = error.getItemMeta();
@@ -194,46 +414,204 @@ public class LanguageManager {
             error.setItemMeta(errorMeta);
             return error;
         }
+        if (langConfig.getConfig().getBoolean("Items." + path + ".disabled", false) &&
+                !Objects.equals(path, "General.DisabledItem")) {
+            return this.getItem("General.DisabledItem", player, false);
+        }
         ItemStack item;
-        Material material = Material.matchMaterial(Objects.requireNonNull(langConfig.getConfig().getString("Items." + path + ".material")));
+        Material material = Material.matchMaterial(langConfig.getConfig().getString("Items." + path + ".material"));
+        if (material == null) {
+            assert errorMeta != null;
+            errorMeta.setDisplayName("Material not found! (" + langConfig.getConfig().getString("Items." + path + ".material") + ")");
+            errorMeta.setLore(Arrays.asList("If this happens,", "please change the Material from this Item", "to something existing", "Path: Items." + path + ".material"));
+            error.setItemMeta(errorMeta);
+            return error;
+        }
         String displayName = langConfig.getConfig().getString("Items." + path + ".displayName");
         List<String> lore = langConfig.getConfig().getStringList("Items." + path + ".lore");
         List<String> loreWithPlaceholders = new ArrayList<>();
-        assert material != null;
+        List<String> includedKeys = new ArrayList<>();
         item = new ItemStack(material, 1);
         ItemMeta meta = item.getItemMeta();
+        //System.out.println("Placeholders: " + placeholders);
+        //System.out.println("Lore: " + lore);
         for (String s : lore) {
-            loreWithPlaceholders.add(format(player, s, CAPluginMain.getPrefix()));
+            includedKeys.addAll(getPlaceholderKeysInMessage(s, PlaceholderType.ITEM));
+            String temp = replacePlaceholders(PlaceholderType.ITEM, s);
+            loreWithPlaceholders.add(Utils.format(player, temp, prefix));
         }
+        //System.out.println("Lore with Placeholders: " + loreWithPlaceholders);
         assert meta != null;
         meta.setLore(loreWithPlaceholders);
         assert displayName != null;
-        meta.setDisplayName(format(player, displayName, CAPluginMain.getPrefix()));
+        includedKeys.addAll(getPlaceholderKeysInMessage(Utils.format(player, displayName, prefix), PlaceholderType.ITEM));
+        meta.setDisplayName(replacePlaceholders(PlaceholderType.ITEM, Utils.format(player, displayName, prefix)));
         if (langConfig.getConfig().getBoolean("Items." + path + ".enchanted", false)) {
             meta.addEnchant(Enchantment.DURABILITY, 0, true);
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
         item.setItemMeta(meta);
+        if (resetAfter) resetSpecificPlaceholders(PlaceholderType.ITEM, includedKeys);
+        return item;
+    }
+
+    public LanguageFile getLangOrPlayerLang(boolean currentLang, String langName, @Nullable Player player) {
+        if (player == null && currentLang) return getCurrentLang();
+        if (player == null) return getLang(langName, true);
+
+        LanguageFile langFile = plhandler.getPlayerLanguage(player.getUniqueId());
+        if (langFile == null) {
+            if (currentLang) return getCurrentLang();
+            else return getLang(langName, true);
+        }
+        return langFile;
+    }
+
+    public ItemStack getItem(String path, Player player, String langName, boolean resetAfter) {
+        LanguageFile langFile = getLangOrPlayerLang(false, langName, player);
+        LanguageConfig langConfig = langFile.getLangConfig();
+        ItemStack error = new ItemStack(Material.BARRIER);
+        ItemMeta errorMeta = error.getItemMeta();
+        if (langConfig == null || langConfig.getConfig() == null) {
+            assert errorMeta != null;
+            errorMeta.setDisplayName("Language Config not found!");
+            errorMeta.setLore(Arrays.asList("If this happens often,", "please report to the Discord"));
+            error.setItemMeta(errorMeta);
+            return error;
+        }
+        if (langConfig.getConfig().getString("Items." + path) == null || !langConfig.getConfig().contains("Items." + path)) {
+            assert errorMeta != null;
+            errorMeta.setDisplayName("Config Path not found!");
+            errorMeta.setLore(Arrays.asList("If this happens often,", "please report to the Discord", "Path: Items." + path));
+            error.setItemMeta(errorMeta);
+            return error;
+        }
+        if (langConfig.getConfig().getBoolean("Items." + path + ".disabled", false) &&
+                !Objects.equals(path, "General.DisabledItem")) {
+            return this.getItem("General.DisabledItem", player, false);
+        }
+        ItemStack item;
+        Material material = Material.matchMaterial(langConfig.getConfig().getString("Items." + path + ".material"));
+        if (material == null) {
+            assert errorMeta != null;
+            errorMeta.setDisplayName("Material not found! (" + langConfig.getConfig().getString("Items." + path + ".material") + ")");
+            errorMeta.setLore(Arrays.asList("If this happens,", "please change the Material from this Item", "to something existing", "Path: Items." + path + ".material"));
+            error.setItemMeta(errorMeta);
+            return error;
+        }
+        String displayName = langConfig.getConfig().getString("Items." + path + ".displayName");
+        List<String> lore = langConfig.getConfig().getStringList("Items." + path + ".lore");
+        List<String> loreWithPlaceholders = new ArrayList<>();
+        List<String> includedKeys = new ArrayList<>();
+        item = new ItemStack(material, 1);
+        ItemMeta meta = item.getItemMeta();
+        for (String s : lore) {
+            includedKeys.addAll(getPlaceholderKeysInMessage(s, PlaceholderType.ITEM));
+            String temp = replacePlaceholders(PlaceholderType.ITEM, s);
+            loreWithPlaceholders.add(Utils.format(player, temp, prefix));
+        }
+        assert meta != null;
+        meta.setLore(loreWithPlaceholders);
+        assert displayName != null;
+        includedKeys.addAll(getPlaceholderKeysInMessage(Utils.format(player, displayName, prefix), PlaceholderType.ITEM));
+        meta.setDisplayName(replacePlaceholders(PlaceholderType.ITEM, Utils.format(player, displayName, prefix)));
+        if (langConfig.getConfig().getBoolean("Items." + path + ".enchanted", false)) {
+            meta.addEnchant(Enchantment.DURABILITY, 0, true);
+            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        }
+        item.setItemMeta(meta);
+        if (resetAfter) resetSpecificPlaceholders(PlaceholderType.ITEM, includedKeys);
         return item;
     }
 
     public String getMenuTitle(String path, Player player, String langName) {
-        LanguageFile langFile = getLang(langName);
+        LanguageFile langFile = getLangOrPlayerLang(false, langName, player);
         LanguageConfig langConfig = langFile.getLangConfig();
         if (langConfig == null || langConfig.getConfig() == null)
             return "null config";
         if (langConfig.getConfig().getString("MenuTitles." + path) == null || !langConfig.getConfig().contains("MenuTitles." + path))
             return "null path: MenuTitles." + path;
-        return format(player, Objects.requireNonNull(langConfig.getConfig().getString("MenuTitles." + path)), CAPluginMain.getPrefix());
+        String title = langConfig.getConfig().getString("MenuTitles." + path);
+        List<String> includedKeys = new ArrayList<>(getPlaceholderKeysInMessage(title, PlaceholderType.MENUTITLE));
+        title = replacePlaceholders(PlaceholderType.MENUTITLE, title);
+        resetSpecificPlaceholders(PlaceholderType.MENUTITLE, includedKeys);
+        return Utils.format(player, title, prefix);
     }
 
     public String getMenuTitle(String path, Player player) {
-        LanguageFile langFile = getCurrentLang();
+        LanguageFile langFile = getLangOrPlayerLang(true, null, player);
         LanguageConfig langConfig = langFile.getLangConfig();
         if (langConfig == null || langConfig.getConfig() == null)
             return "null config";
         if (langConfig.getConfig().getString("MenuTitles." + path) == null || !langConfig.getConfig().contains("MenuTitles." + path))
             return "null path: MenuTitles." + path;
-        return format(player, Objects.requireNonNull(langConfig.getConfig().getString("MenuTitles." + path)), CAPluginMain.getPrefix());
+        String title = langConfig.getConfig().getString("MenuTitles." + path);
+        List<String> includedKeys = new ArrayList<>(getPlaceholderKeysInMessage(title, PlaceholderType.MENUTITLE));
+        title = replacePlaceholders(PlaceholderType.MENUTITLE, title);
+        resetSpecificPlaceholders(PlaceholderType.MENUTITLE, includedKeys);
+        return Utils.format(player, title, prefix);
+    }
+
+    /**
+     * The Path has to be exact
+     *
+     * @param path         exact path of the Object
+     * @param player       Player for Placeholders
+     * @param defaultValue Default Value
+     * @param resetAfter   Placeholders reset
+     * @param <T>          Type of the Object
+     * @return The Object
+     */
+    public <T> T getCustomObject(String path, @Nullable Player player, T defaultValue, boolean resetAfter) {
+        LanguageFile langFile = getLangOrPlayerLang(true, null, player);
+        LanguageConfig langConfig = langFile.getLangConfig();
+        if (langConfig == null || langConfig.getConfig() == null)
+            return defaultValue;
+        if (langConfig.getConfig().getString(path) == null || !langConfig.getConfig().contains(path))
+            return defaultValue;
+
+        T obj;
+        try {
+            obj = (T) langConfig.getConfig().get(path, defaultValue);
+            //System.out.println("Object Out: " + obj);
+            //System.out.println("Object in Config (without Default): " + langConfig.getConfig().get(path, defaultValue));
+            if (obj instanceof String) {
+                obj = (T) replacePlaceholders(PlaceholderType.CUSTOM, Utils.format(player, obj.toString(), prefix));
+                if (resetAfter)
+                    resetSpecificPlaceholders(PlaceholderType.CUSTOM,
+                            getPlaceholderKeysInMessage((String) langConfig.getConfig().get(path), PlaceholderType.CUSTOM));
+            }
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+            return defaultValue;
+        }
+        if (obj == null) obj = defaultValue;
+        return obj;
+    }
+
+    public <T> T getCustomObject(String path, @Nullable Player player, String langName, T defaultValue, boolean resetAfter) {
+        LanguageFile langFile = getLangOrPlayerLang(false, langName, player);
+        LanguageConfig langConfig = langFile.getLangConfig();
+        if (langConfig == null || langConfig.getConfig() == null)
+            return null;
+        if (langConfig.getConfig().get(path) == null || !langConfig.getConfig().contains(path))
+            return null;
+        if (langConfig.getConfig().get(path) == null) return null;
+
+        T obj;
+        try {
+            obj = (T) langConfig.getConfig().get(path);
+            if (obj instanceof String) {
+                obj = (T) replacePlaceholders(PlaceholderType.CUSTOM, Utils.format(player, obj.toString(), prefix));
+                if (resetAfter)
+                    resetSpecificPlaceholders(PlaceholderType.CUSTOM,
+                            getPlaceholderKeysInMessage((String) langConfig.getConfig().get(path), PlaceholderType.CUSTOM));
+            }
+        } catch (ClassCastException e) {
+            e.printStackTrace();
+            return defaultValue;
+        }
+        if (obj == null) obj = defaultValue;
+        return obj;
     }
 }

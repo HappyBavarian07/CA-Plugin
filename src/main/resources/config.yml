@@ -19,11 +19,20 @@ CA:
   settings:
     MySQL:
       # This Option disables the MySQL and saves all the Data in a File
+      # True means MySQL disabled
+      # False means MySQL enabled
       disabled: false
     # This is the language option you can add language files to the "languages" folder,
     # and then enter the name of the file (without .yml) here. Note upper and lower case!
     # Example: /plugins/CA-Plugin/languages/<Language>.yml | language (in the config): Language
     language: de
+
+    # UNDER DEVELOPMENT
+    # This is the language option for Updates you can, enter the name of the file (without .yml) here.
+    # This Language will the Plugin use to update other Language Files
+    # Note upper and lower case!
+    # Example: /plugins/CA-Plugin/languages/<Language>.yml | languageForUpdates (in the config): Language
+    languageForUpdates: en
 
     # This Option makes it that all Actions (Plugin Update, Admin Panel Open, ...) get logged
     # in the plugin.log File If You don't want this please disable this Option!
@@ -48,7 +57,9 @@ CA:
     Heads:
       Command: false
       Killing: true
-    Flytime: 300
+    # The Time how long a player can fly from Spawn in Minutes
+    # -1 to disable
+    Flytime: 5
     Spawn:
       # The Radius for the Plugin to check for Elytra
       Radius: 5

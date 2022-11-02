@@ -149,7 +149,7 @@ public class TrollItemsGUI implements Listener {
 		
 		Player p = (Player) e.getWhoClicked();
 		// Using slots click is a best option for your inventory click's
-		if(e.getRawSlot() == 13 && clickedItem.getType() != Material.PLAYER_HEAD) {
+		/*if(e.getRawSlot() == 13 && clickedItem.getType() != Material.PLAYER_HEAD) {
 			ItemStack item = new ItemStack(Material.LEVER);
 			ItemMeta meta = item.getItemMeta();
 			meta.setDisplayName("§1R§2e§3m§4o§5t§6e §7C§8o§9n§at§br§co§el");
@@ -157,7 +157,7 @@ public class TrollItemsGUI implements Listener {
 			item.addUnsafeEnchantment(Enchantment.LUCK, -1);
 			p.getInventory().addItem(item);
 			p.closeInventory();
-		}
+		}*/
 		if(e.getRawSlot() == 23 && clickedItem.getType() != Material.PLAYER_HEAD) {
 			ItemStack Elytra = new ItemStack(Material.ACACIA_BOAT);
 			ItemMeta ElytraMeta = Elytra.getItemMeta();
@@ -232,10 +232,10 @@ public class TrollItemsGUI implements Listener {
 				if(e.getItem().getItemMeta().hasLore()) {
 					if(e.getPlayer().hasPermission("ca.admin.troll") && !e.getPlayer().hasMetadata("TrollItemsGUI_ElytraCheck")) {
 						if(!e.getPlayer().getName().equals(e.getItem().getItemMeta().getLore().get(2).substring(11))) {
-							e.getPlayer().sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Troll.Staff.NotTheOwner", e.getPlayer()));
+							e.getPlayer().sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Troll.Staff.NotTheOwner", e.getPlayer(), false));
 							for(Player p : Bukkit.getOnlinePlayers()) {
 								if(p.isOp()) {
-									p.sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Troll.Staff.Admin.TryedToUseStaff", p).replace("%stuffowner%" , e.getItem().getItemMeta().getLore().get(2).substring(11)));
+									p.sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Troll.Staff.Admin.TryedToUseStaff", p, false).replace("%stuffowner%" , e.getItem().getItemMeta().getLore().get(2).substring(11)));
 								}
 							}
 							return;
@@ -262,7 +262,7 @@ public class TrollItemsGUI implements Listener {
 	@EventHandler
 	public void onIactAtEntity(PlayerInteractAtEntityEvent e) {
 		if(e.getRightClicked() instanceof Player) {
-			if(e.getPlayer().getItemInHand() != null && e.getPlayer().getItemInHand().getItemMeta().getDisplayName().equals("§1R§2e§3m§4o§5t§6e §7C§8o§9n§at§br§co§el") && e.getPlayer().getItemInHand().getType() == Material.LEVER) {
+			/*if(e.getPlayer().getItemInHand() != null && e.getPlayer().getItemInHand().getItemMeta().getDisplayName().equals("§1R§2e§3m§4o§5t§6e §7C§8o§9n§at§br§co§el") && e.getPlayer().getItemInHand().getType() == Material.LEVER) {
 				if(!e.getPlayer().getItemInHand().getItemMeta().hasLore()) {
 					if(e.getPlayer().hasPermission("ca.admin.troll")) {
 						List<String> lore = new ArrayList<String>();
@@ -272,11 +272,11 @@ public class TrollItemsGUI implements Listener {
 						ItemMeta meta = e.getPlayer().getItemInHand().getItemMeta();
 						meta.setLore(lore);
 						e.getPlayer().getItemInHand().setItemMeta(meta);
-						e.getPlayer().sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Troll.Staff.TargetLocked", e.getPlayer()).replace("%target_name%", e.getRightClicked().getName()));
+						e.getPlayer().sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Troll.Staff.TargetLocked", e.getPlayer(), false).replace("%target_name%", e.getRightClicked().getName()));
 						return;
 					}
 				}
-			}
+			}*/
 			if(e.getPlayer().getItemInHand().getItemMeta().getDisplayName().equals("§4§l§nDisable the Elytra!") && e.getPlayer().getItemInHand().getType() == Material.ACACIA_BOAT) {
 				if(!e.getPlayer().getItemInHand().getItemMeta().hasLore()) {
 					if(e.getPlayer().hasPermission("ca.admin.troll")) {
@@ -288,7 +288,7 @@ public class TrollItemsGUI implements Listener {
 						ItemMeta meta = e.getPlayer().getItemInHand().getItemMeta();
 						meta.setLore(lore);
 						e.getPlayer().getItemInHand().setItemMeta(meta);
-						e.getPlayer().sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Troll.Staff.TargetLocked", e.getPlayer())
+						e.getPlayer().sendMessage(CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Troll.Staff.TargetLocked", e.getPlayer(), false)
 								.replace("%target_name%", e.getRightClicked().getName()));
 						e.getPlayer().removeMetadata("TrollItemsGUI_ElytraCheck", plugin);
 					}

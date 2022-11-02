@@ -1,5 +1,5 @@
 LanguageFullName: 'Deutsch'
-LanguageVersion: '1.0.0'
+LanguageVersion: '1.2.1'
 Messages:
   Plugin:
     Enabled: '%prefix% &9> &aPlugin erfolgreich aktiviert!'
@@ -11,6 +11,52 @@ Messages:
   Chat:
     Splitter: ' &9>>&7 '
   Player:
+    PerPlayerLang:
+      NotAValidUpdateVersion: '%prefix% &9> &cDies ist keine valide Plugin Version auf die man updaten kann!'
+      NotAValidLanguage: '%prefix% &9> &c''%langName%'' ist keine richtige Sprache zum auswählen!'
+      PerPlayerLangSet: '%prefix% &9> &aErfolgreich ''%langname%'' als deine neue Sprache ausgewählt!'
+      # %target% = The Targeted Player
+      PerPlayerLangSetOther: '%prefix% &9> &aErfolgreich ''%langname%'' als %target%''s neue Sprache ausgewählt!'
+    CAPlayerListCommand:
+      # How many Players are listed on each page
+      MaxItemsPerPage: 3
+      PageDoesNotExist: '%prefix% &9> &cDiese Seite existiert nicht!'
+      # Header and Footer Placeholders:
+      # %page% = Current Page
+      # %max_page% = Max Page
+
+      # Format Placeholders
+      # %count% - Place of the Player in the List
+      # %status% - Checks if Player is Offline/Online
+      # %current_prefix% = Returns the Current Prefix of the Player
+      # %current_world% = Returns the Current World of the Players
+      # %elytra_fly% = Checks if the Player currently flies with the Spawn Elytra
+      Header: '&a------------ &b(&5%page%&7/&5%max_page%&b) &a------------'
+      Format:
+        - '  &3%count%. &b%player_name%&r%status%'
+        - '    - &3Prefix des Spielers: &b%current_prefix%'
+        - '    - &3Welt des Spielers: &b%current_world%'
+        - '    - &3Fliegt mit Elytra: &b%elytra_fly%'
+      Footer: '&a------------ &b(&5%page%&7/&5%max_page%&b) &a------------'
+    CamPlayerListCommand:
+      # How many Players are listed on each page
+      MaxItemsPerPage: 3
+      PageDoesNotExist: '%prefix% &9> &cDiese Seite existiert nicht!'
+      # Header and Footer Placeholders:
+      # %page% = Current Page
+      # %max_page% = Max Page
+
+      # Format Placeholders
+      # %count% - Place of the Player in the List
+      # %status% - Checks if Player is Offline/Online
+      # %current_prefix% = Returns the Current Prefix of the Player
+      # %current_world% = Returns the Current World of the Players
+      Header: '&a------------ &b(&5%page%&7/&5%max_page%&b) &a------------'
+      Format:
+        - '  &3%count%. &b%player_name%&r%status%'
+        - '    - &3Prefix des Spielers: &b%current_prefix%'
+        - '    - &3Welt des Spielers: &b%current_world%'
+      Footer: '&a------------ &b(&5%page%&7/&5%max_page%&b) &a------------'
     Debug:
       Prefixes:
         PageDoesNotExist: '%prefix% &9> &cDiese Seite existiert nicht!'
@@ -18,6 +64,7 @@ Messages:
         Format: '  &b%player_name% &7- &b%config_name%'
         Footer: '&a------------ &b(&5%page%&7/&5%max_page%&b) &a------------'
     CraftAttackSpawnSet: '%prefix% &9> &aCraftAttack Spawn-Location erfolgreich gesetzt!'
+    FlytimeMessage: '%prefix% &9> &aFlugzeit: %minutes% Minuten und %seconds% Sekunden verbleibend'
     PlayerIsNull: '%prefix% &9> &4Error: &fThe Player &b%target_name%&f doesn''t exist or isn''t online!'
     Marker:
       NoMarkersFound: '%prefix% &9> &4Error: &fKeine Marker gefunden!'
@@ -62,8 +109,9 @@ Messages:
         # %name% = Sub Command Name
         # %aliases% = Sub Command Aliases
         # %permission% = Sub Command Permission
+        # %player_required% = Player Required (true/false)
         Header: '&a------------ &b(&5%page%&7/&5%max_page%&b) &a------------'
-        Format: '  &b%usage% &7- &b%description%'
+        Format: '  &b%usage% &7- &b%description% -&7 &bPlayer: &e%player_required%'
         Footer: '&a------------ &b(&5%page%&7/&5%max_page%&b) &a------------'
     Afk:
       MoveWhileAfk: '%prefix% &9> &7Du bist im &1A&2F&3K&4-&5M&6o&7d&8e&7 du kannst dich erst wieder bewegen wenn du &b/afk off eingegeben hast&7!'
@@ -77,6 +125,16 @@ Messages:
       AfkOnOtherTarget: '%prefix% &9> &7Der &1A&2F&3K&4-&5M&6o&7d&8e&7 wurde für dich von &b%player_name% aktiviert&7!'
       AfkOffOtherTarget: '%prefix% &9> &7Der &1A&2F&3K&4-&5M&6o&7d&8e&7 wurde für dich von &b%player_name% deaktiviert&7!'
       AlreadyAfkOther: '%prefix% &9> &b%target_name%&7 ist bereits im &1A&2F&3K&4-&5M&6o&7d&8e&7!'
+    Discord:
+      LinkAccount:
+        AlreadyVerified: '%prefix% &9> &cDu bist schon verifiziert!'
+        NoPendingVerifications: '%prefix% &9> &cDu hast keinen Verifizierungsprozess, %player_name%!'
+        CodeNotValid: '%prefix% &9> &cDer Code is nicht richtig! Überprüfe ihn nochmals, %player_name%!'
+        LeftDiscordServer: '%prefix% &9> &cEs scheint, dass du den Discord Server verlassen hast!'
+        SuccessfullyLinked: '%prefix% &9> &aDein Account wurde erfolgreich verbunden!\n&bDein Account wurde verlinkt mit %discord_name%.\n&cSchau auf Discord nach einer Nachricht des Bots!'
+      UnlinkAccount:
+        NotVerified: '%prefix% &9> &cDu bist nicht verifiziert!'
+        SuccessfullyUnlinked: '%prefix% &aDein Account wurde erfolgreich getrennt.\n&bÜberprüfe Discord nach einer Nachricht des Bots.'
   Console:
     ExecutesPlayerCommand: '%prefix% &9> &cDu musst ein Spieler sein!'
   Prefix:
@@ -107,3 +165,57 @@ Messages:
     Cam:
       Prefix: '&r[&2Cam&r] '
       Suffix: ''
+Items:
+  PrefixItems:
+    Offline:
+      material: YELLOW_WOOL
+      displayName: '&3%ca_offline_config%'
+      lore:
+        - '&3Prefix: §7%ca_offline_prefix%'
+        - '&3Suffix: §7%ca_offline_suffix%'
+        - '&3Format: §7%ca_offline_prefix%%player_name%%ca_offline_suffix%'
+    Online:
+      material: LIME_WOOL
+      displayName: '&3%ca_online_config%'
+      lore:
+        - '&3Prefix: §7%ca_online_prefix%'
+        - '&3Suffix: §7%ca_online_suffix%'
+        - '&3Format: §7%ca_online_prefix%%player_name%%ca_online_suffix%'
+    Redstone:
+      material: RED_WOOL
+      displayName: '&3%ca_redstone_config%'
+      lore:
+        - '&3Prefix: §7%ca_redstone_prefix%'
+        - '&3Suffix: §7%ca_redstone_suffix%'
+        - '&3Format: §7%ca_redstone_prefix%%player_name%%ca_redstone_suffix%'
+    Live:
+      material: BLUE_WOOL
+      displayName: '&3%ca_live_config%'
+      lore:
+        - '&3Prefix: §7%ca_live_prefix%'
+        - '&3Suffix: §7%ca_live_suffix%'
+        - '&3Format: §7%ca_live_prefix%%player_name%%ca_live_suffix%'
+    Afk:
+      material: ORANGE_WOOL
+      displayName: '&3%ca_afk_config%'
+      lore:
+        - '&3Prefix: §7%ca_afk_prefix%'
+        - '&3Suffix: §7%ca_afk_suffix%'
+        - '&3Format: §7%ca_afk_prefix%%player_name%%ca_afk_suffix%'
+    Record:
+      material: WHITE_WOOL
+      displayName: '&3%ca_record_config%'
+      lore:
+        - '&3Prefix: §7%ca_record_prefix%'
+        - '&3Suffix: §7%ca_record_suffix%'
+        - '&3Format: §7%ca_record_prefix%%player_name%%ca_record_suffix%'
+    InfoItem:
+      material: BOOK
+      displayName: '&aPrefix &3Menu'
+      lore:
+        - '&3- &7Hier kannst du deinen Prefix wählen'
+        - '&3- &7Du musst nur auf das jeweilige Item klicken'
+        - '&3- &7Mehr Infos mit /prefix <Prefix>'
+        - '&3- &7Funktioniert nur in der Craft Attack Welt'
+MenuTitles:
+  PrefixMenu: '&3Prefix Menu'

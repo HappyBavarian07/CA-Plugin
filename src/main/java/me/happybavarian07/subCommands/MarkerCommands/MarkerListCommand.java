@@ -4,9 +4,10 @@ package me.happybavarian07.subCommands.MarkerCommands;/*
  */
 
 import me.happybavarian07.Marker;
-import me.happybavarian07.PaginatedList;
-import me.happybavarian07.SubCommand;
+import me.happybavarian07.commandmanagement.PaginatedList;
+import me.happybavarian07.commandmanagement.SubCommand;
 import me.happybavarian07.main.CAPluginMain;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -15,8 +16,12 @@ import java.io.File;
 import java.util.*;
 
 public class MarkerListCommand extends SubCommand {
+    public MarkerListCommand(String mainCommandName) {
+        super(mainCommandName);
+    }
+
     @Override
-    public boolean onCommand(Player player, String[] args) {
+    public boolean onPlayerCommand(Player player, String[] args) {
         if (args.length != 1) {
             return false;
         }
@@ -24,7 +29,7 @@ public class MarkerListCommand extends SubCommand {
         List<Marker> playerMarkers = new ArrayList<>();
         assert allmarkerlist != null;
         if (allmarkerlist.length == 0) {
-            player.sendMessage(lgm.getMessage("Player.Marker.NoMarkersFound", player));
+            player.sendMessage(lgm.getMessage("Player.Marker.NoMarkersFound", player, false));
             return true;
         }
         for (File file : allmarkerlist) {
@@ -35,33 +40,38 @@ public class MarkerListCommand extends SubCommand {
         }
 
         if (playerMarkers.size() == 0) {
-            player.sendMessage(lgm.getMessage("Player.Marker.NoMarkersFound", player));
+            player.sendMessage(lgm.getMessage("Player.Marker.NoMarkersFound", player, false));
             return true;
         }
         try {
             int page = Integer.parseInt(args[0]);
             PaginatedList<Marker> helpMessages = new PaginatedList<>(playerMarkers).maxItemsPerPage(10).sort();
             if (!helpMessages.containsPage(page)) {
-                player.sendMessage(lgm.getMessage("Player.Marker.List.PageDoesNotExist", player));
+                player.sendMessage(lgm.getMessage("Player.Marker.List.PageDoesNotExist", player, false));
                 return true;
             }
-            player.sendMessage(lgm.getMessage("Player.Marker.List.Header", player)
+            player.sendMessage(lgm.getMessage("Player.Marker.List.Header", player, false)
                     .replace("%page%", String.valueOf(page))
                     .replace("%max_page%", String.valueOf(helpMessages.getMaxPage())));
             for (Marker marker : helpMessages.getPage(page)) {
-                player.sendMessage(format(lgm.getMessage("Player.Marker.List.Format", player), marker));
+                player.sendMessage(format(lgm.getMessage("Player.Marker.List.Format", player, false), marker));
             }
-            player.sendMessage(lgm.getMessage("Player.Marker.List.Footer", player)
+            player.sendMessage(lgm.getMessage("Player.Marker.List.Footer", player, false)
                     .replace("%page%", String.valueOf(page))
                     .replace("%max_page%", String.valueOf(helpMessages.getMaxPage())));
         } catch (NumberFormatException e) {
-            player.sendMessage(lgm.getMessage("Player.Commands.NotANumber", player));
+            player.sendMessage(lgm.getMessage("Player.Commands.NotANumber", player, false));
             return true;
         } catch (PaginatedList.ListNotSortedException e2) {
             e2.printStackTrace();
             return true;
         }
         return true;
+    }
+
+    @Override
+    public boolean onConsoleCommand(ConsoleCommandSender sender, String[] args) {
+        return false;
     }
 
     @Override

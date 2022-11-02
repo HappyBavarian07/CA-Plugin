@@ -3,8 +3,6 @@ package me.happybavarian07.listeners;/*
  * @Date 06.08.2022 | 11:39
  */
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
 import me.happybavarian07.main.CAPluginMain;
 import me.happybavarian07.main.Utils;
 import net.md_5.bungee.api.ChatMessageType;
@@ -16,22 +14,30 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.*;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UnknownFormatConversionException;
 
 public class MoreCraftAttackEvents implements Listener {
     private final CAPluginMain plugin;
+    private final Map<Player, BukkitTask> elytraTaskList;
 
     public MoreCraftAttackEvents(CAPluginMain plugin) {
         this.plugin = plugin;
+        elytraTaskList = new HashMap<>();
     }
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onChat(AsyncPlayerChatEvent e) {
         Player player = e.getPlayer();
-        String MessageSplitter = plugin.getLanguageManager().getMessage("Chat.Splitter", player);
+        String MessageSplitter = plugin.getLanguageManager().getMessage("Chat.Splitter", player, false);
         String PlayerPrefix = Utils.getPrefixFromConfig(player).getInGamePrefix();
         String PlayerSuffix = Utils.getPrefixFromConfig(player).getInGameSuffix();
         try {
@@ -62,33 +68,34 @@ public class MoreCraftAttackEvents implements Listener {
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onMove(PlayerMoveEvent e) {
-        if (e.getPlayer().getWorld().getName().equals(plugin.getConfig().getString("CA.world.CraftAttack_World"))) {
-            if (e.getPlayer().hasMetadata("SpawnTeleportAnfrage")) {
-                if (Bukkit.getScheduler().getPendingTasks().contains(plugin.spawnvorgang)) {
-                    Bukkit.getScheduler().cancelTask(plugin.spawnvorgang.getTaskId());
+        Player player = e.getPlayer();
+        if (player.getWorld().getName().equals(plugin.getConfig().getString("CA.world.CraftAttack_World"))) {
+            if (player.hasMetadata("SpawnTeleportAnfrage")) {
+                if (Bukkit.getScheduler().getPendingTasks().contains(plugin.spawnvorgang.get(player))) {
+                    plugin.spawnvorgang.get(player).cancel();
                 }
-                e.getPlayer().sendMessage("§cSpawn Teleport abgebrochen, da du dich bewegt hast!");
-                e.getPlayer().removeMetadata("SpawnTeleportAnfrage", plugin);
+                player.sendMessage("§cSpawn Teleport abgebrochen, da du dich bewegt hast!");
+                player.removeMetadata("SpawnTeleportAnfrage", plugin);
             }
-            e.getPlayer().getItemInHand();
-            if (e.getPlayer().getItemInHand().hasItemMeta() && Objects.requireNonNull(e.getPlayer().getItemInHand().getItemMeta()).getDisplayName().equals("§1R§2e§3m§4o§5t§6e §7C§8o§9n§at§br§co§el") && e.getPlayer().getItemInHand().getType() == Material.LEVER) {
-                if (e.getPlayer().hasPermission("ca.admin.troll")) {
-                    if (Objects.requireNonNull(e.getPlayer().getItemInHand().getItemMeta().getLore()).isEmpty()) {
+            player.getItemInHand();
+            /*if (player.getItemInHand().hasItemMeta() && Objects.requireNonNull(player.getItemInHand().getItemMeta()).getDisplayName().equals("§1R§2e§3m§4o§5t§6e §7C§8o§9n§at§br§co§el") && player.getItemInHand().getType() == Material.LEVER) {
+                if (player.hasPermission("ca.admin.troll")) {
+                    if (Objects.requireNonNull(player.getItemInHand().getItemMeta().getLore()).isEmpty()) {
                         return;
                     }
-                    Player target = Bukkit.getPlayer(Objects.requireNonNull(Objects.requireNonNull(e.getPlayer().getItemInHand().getItemMeta()).getLore()).get(0).replace("§4Target locked: §5", ""));
+                    Player target = Bukkit.getPlayer(Objects.requireNonNull(Objects.requireNonNull(player.getItemInHand().getItemMeta()).getLore()).get(0).replace("§4Target locked: §5", ""));
                     assert target != null;
-                    if (!plugin.isinSpawn(target.getLocation(), e.getPlayer().getLocation(), 5)) {
-                        e.getPlayer().sendMessage("§aDein Target ist nicht in deiner Reichweite!");
+                    if (!plugin.isinSpawn(target.getLocation(), player.getLocation(), 5)) {
+                        player.sendMessage("§aDein Target ist nicht in deiner Reichweite!");
                         return;
                     }
                     PacketContainer packet1 = plugin.pman.createPacket(PacketType.Play.Server.POSITION);
                     packet1.getIntegers().write(0, target.getEntityId());
-                    packet1.getDoubles().write(0, e.getPlayer().getLocation().getX());
-                    packet1.getDoubles().write(1, e.getPlayer().getLocation().getY());
-                    packet1.getDoubles().write(2, e.getPlayer().getLocation().getZ() + 1);
-                    packet1.getFloat().write(0, e.getPlayer().getLocation().getYaw());
-                    packet1.getFloat().write(1, e.getPlayer().getLocation().getPitch());
+                    packet1.getDoubles().write(0, player.getLocation().getX());
+                    packet1.getDoubles().write(1, player.getLocation().getY());
+                    packet1.getDoubles().write(2, player.getLocation().getZ() + 1);
+                    packet1.getFloat().write(0, player.getLocation().getYaw());
+                    packet1.getFloat().write(1, player.getLocation().getPitch());
                     packet1.getModifier().writeDefaults();
                     packet1.getCombatEvents().writeDefaults();
                     packet1.getHands().writeDefaults();
@@ -101,8 +108,8 @@ public class MoreCraftAttackEvents implements Listener {
                     //e.setCancelled(true);
                     return;
                 }
-            }
-            Location blockloc = e.getPlayer().getLocation().add(0, -1, 0);
+            }*/
+            Location blockloc = player.getLocation().add(0, -1, 0);
             Location spawnmiddleloc;
             if (plugin.spawnconfig == null || plugin.spawnconfig.getString("CraftAttack.Spawn.World") == null) {
                 return;
@@ -114,31 +121,43 @@ public class MoreCraftAttackEvents implements Listener {
                 double Z = plugin.spawnconfig.getDouble("CraftAttack.Spawn.Z");
                 spawnmiddleloc = new Location(world, x, y, Z);
             }
-            if (plugin.isinSpawn((blockloc.add(0, 1, 0)), spawnmiddleloc, plugin.getConfig().getDouble("CA.settings.Spawn.Radius")) && blockloc.add(0, -1, 0).getBlock().getType().equals(Material.GOLD_BLOCK)) {
-                if ((e.getPlayer().getGameMode() == GameMode.SPECTATOR) || (e.getPlayer().getGameMode() == GameMode.CREATIVE)) {
+            if (plugin.isinSpawn((blockloc.add(0, 1, 0)), spawnmiddleloc, plugin.getConfig().getDouble("CA.settings.Spawn.Radius")) &&
+                    blockloc.add(0, -1, 0).getBlock().getType().equals(Material.GOLD_BLOCK)) {
+                if ((player.getGameMode() == GameMode.SPECTATOR) || (player.getGameMode() == GameMode.CREATIVE)) {
                     return;
                 }
-                e.getPlayer().setMetadata("CraftAttackPluginSpawnElytra", new FixedMetadataValue(plugin, true));
-                e.getPlayer().setVelocity(e.getPlayer().getLocation().getDirection().setY(1).multiply(1));
-                plugin.repeattaskmoveevent = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
-                    int time = plugin.getConfig().getInt("CA.settings.Flytime");
+                player.setMetadata("CraftAttackPluginSpawnElytra", new FixedMetadataValue(plugin, true));
+                player.setVelocity(player.getLocation().getDirection().setY(1).multiply(1));
+                BukkitTask task = new BukkitRunnable() {
+                    private final Player target = player;
+                    int minutes = plugin.getConfig().getInt("CA.settings.Flytime")-1;
+                    int seconds = 59;
 
                     @Override
                     public void run() {
-                        if (time >= 0 && !e.getPlayer().isOnGround() && e.getPlayer().hasMetadata("CraftAttackPluginSpawnElytra")) {
-                            if (time < 60) {
-                                e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§4§lFlytime: " + (time) + " Seconds left"));
-                            } else {
-                                e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent("§a§lFlytime: " + (time / 60) + " Minutes left"));
+                        if (target.isOnGround() || !target.hasMetadata("CraftAttackPluginSpawnElytra")) {
+                            target.removeMetadata("CraftAttackPluginSpawnElytra", plugin);
+                            cancel();
+                            minutes = plugin.getConfig().getInt("CA.settings.Flytime");
+                            return;
+                        }
+                        this.target.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                                new TextComponent(plugin.getLanguageManager().getMessage("Player.FlytimeMessage", target, true)
+                                        .replace("%minutes%", String.valueOf(minutes)).replace("%seconds%", String.valueOf(seconds))));
+                        if (seconds == 0) {
+                            if (minutes == 0) {
+                                target.removeMetadata("CraftAttackPluginSpawnElytra", plugin);
+                                cancel();
+                                return;
                             }
-                            time--;
+                            minutes--;
+                            seconds = 60;
                         } else {
-                            e.getPlayer().removeMetadata("CraftAttackPluginSpawnElytra", plugin);
-                            Bukkit.getScheduler().cancelTask(plugin.repeattaskmoveevent);
-                            time = plugin.getConfig().getInt("CA.settings.Flytime");
+                            seconds--;
                         }
                     }
-                }, 20L, 20L);
+                }.runTaskTimer(plugin, 20L, 20L);
+                elytraTaskList.put(player, task);
             }
         }
     }
@@ -146,18 +165,17 @@ public class MoreCraftAttackEvents implements Listener {
     @SuppressWarnings("deprecation")
     @EventHandler
     public void onIact(PlayerInteractEvent e) {
-        if (e.getAction().equals(Action.RIGHT_CLICK_AIR)) {
-            if (e.getPlayer().getItemInHand().getType() == Material.FIREWORK_ROCKET) {
-                if (e.getPlayer().hasMetadata("CraftAttackPluginSpawnElytra")) {
-                    e.getPlayer().setVelocity(e.getPlayer().getLocation().getDirection().multiply(2));
-                    e.getPlayer().getWorld().playSound(e.getPlayer().getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 100, (float) 1.0);
-                    int i = 0;
-                    while (!Objects.requireNonNull(e.getPlayer().getInventory().getItem(i)).isSimilar(e.getItem())) {
-                        i++;
-                    }
-                    Objects.requireNonNull(e.getPlayer().getInventory().getItem(i)).setAmount(Objects.requireNonNull(e.getPlayer().getInventory().getItem(i)).getAmount() - 1);
-                }
-            }
+        Player player = e.getPlayer();
+        if (!e.getAction().equals(Action.RIGHT_CLICK_AIR)) return;
+        if (!(player.getItemInHand().getType() == Material.FIREWORK_ROCKET)) return;
+        if (!player.hasMetadata("CraftAttackPluginSpawnElytra")) return;
+        player.setVelocity(player.getLocation().getDirection().multiply(2));
+        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 100, (float) 1.0);
+        for (ItemStack item : e.getPlayer().getInventory()) {
+            if (item == null) continue;
+            if (!(item.getType() == Material.FIREWORK_ROCKET)) continue;
+            item.setAmount(item.getAmount() - 1);
+            return;
         }
     }
 }

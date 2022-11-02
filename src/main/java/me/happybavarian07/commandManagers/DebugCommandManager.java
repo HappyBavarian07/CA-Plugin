@@ -3,30 +3,35 @@ package me.happybavarian07.commandManagers;/*
  * @Date 09.11.2021 | 16:33
  */
 
-import me.happybavarian07.CommandData;
-import me.happybavarian07.CommandManager;
-import me.happybavarian07.SubCommand;
-import me.happybavarian07.main.Utils;
+import me.happybavarian07.commandmanagement.CommandData;
+import me.happybavarian07.commandmanagement.CommandManager;
+import me.happybavarian07.commandmanagement.SubCommand;
+import me.happybavarian07.main.CAPluginMain;
 import me.happybavarian07.subCommands.DebugCommands.PrefixesCommand;
 import me.happybavarian07.subCommands.DebugCommands.RulesActivatedCommand;
 import me.happybavarian07.subCommands.DebugCommands.WorldCheckCommand;
+import me.happybavarian07.subCommands.HelpCommand;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @CommandData()
 public class DebugCommandManager extends CommandManager {
-    // Sub Commands
-    List<String> commandArgs = new ArrayList<>();
-    List<String> commandSubArgs = new ArrayList<>();
-
     @Override
     public String getCommandName() {
         return "debug";
+    }
+
+    @Override
+    public String getCommandUsage() {
+        return "/debug <SubCommand> (/debug help <Page>)";
     }
 
     @Override
@@ -35,14 +40,35 @@ public class DebugCommandManager extends CommandManager {
     }
 
     @Override
-    public void setup() {
-        commands.add(new WorldCheckCommand());
-        commands.add(new RulesActivatedCommand());
-        commands.add(new PrefixesCommand());
+    public JavaPlugin getJavaPlugin() {
+        return CAPluginMain.getPlugin();
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, String[] args) {
+    public List<String> getCommandAliases() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String getCommandPermission() {
+        return "";
+    }
+
+    @Override
+    public void setup() {
+        commands.add(new WorldCheckCommand(getCommandName()));
+        commands.add(new RulesActivatedCommand(getCommandName()));
+        commands.add(new PrefixesCommand(getCommandName()));
+        commands.add(new HelpCommand(getCommandName()));
+    }
+
+    @Override
+    public boolean onCommand(Player player, String[] args) {
+        return super.onCommand(player, args);
+    }
+
+    @Override
+    public boolean onCommand(ConsoleCommandSender sender, String[] args) {
         return super.onCommand(sender, args);
     }
 

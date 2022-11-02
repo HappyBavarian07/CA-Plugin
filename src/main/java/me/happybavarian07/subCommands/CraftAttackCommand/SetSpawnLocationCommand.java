@@ -3,7 +3,9 @@ package me.happybavarian07.subCommands.CraftAttackCommand;/*
  * @Date 09.11.2021 | 15:37
  */
 
-import me.happybavarian07.SubCommand;
+import me.happybavarian07.commandmanagement.SubCommand;
+import me.happybavarian07.commandmanagement.CommandData;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
@@ -12,9 +14,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+@CommandData(playerRequired = true)
 public class SetSpawnLocationCommand extends SubCommand {
+    public SetSpawnLocationCommand(String mainCommandName) {
+        super(mainCommandName);
+    }
+
     @Override
-    public boolean onCommand(Player player, String[] args) {
+    public boolean onPlayerCommand(Player player, String[] args) {
         if (args.length != 0) {
             return false;
         }
@@ -31,9 +38,14 @@ public class SetSpawnLocationCommand extends SubCommand {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            player.sendMessage(lgm.getMessage("Player.CraftAttackSpawnSet", player));
+            player.sendMessage(lgm.getMessage("Player.CraftAttackSpawnSet", player, false));
         }
         return true;
+    }
+
+    @Override
+    public boolean onConsoleCommand(ConsoleCommandSender sender, String[] args) {
+        return false;
     }
 
     @Override

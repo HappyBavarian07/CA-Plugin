@@ -107,14 +107,17 @@ public class SelectorInv implements Listener {
 				Bukkit.getPluginManager().callEvent(lobbyTeleportEvent);
 				if(!lobbyTeleportEvent.isCancelled()) {
 					player.sendMessage(lobbyTeleportEvent.getMessage());
-					playTPEffect(lobbyTeleportEvent.getPlayer(), lobbyTeleportEvent.getStartlocation(), lobbyTeleportEvent.getEndlocation());
-					player.setMetadata("teleportanimationstoppedmoving", new FixedMetadataValue(plugin, true));
-					player.closeInventory();
+					if(Bukkit.getPluginManager().isPluginEnabled("EffectLib")) {
+						playTPEffect(lobbyTeleportEvent.getPlayer(), lobbyTeleportEvent.getStartlocation(), lobbyTeleportEvent.getEndlocation());
+					}
+					player.teleport(lobbyTeleportEvent.getEndlocation());
+					/*player.setMetadata("teleportanimationstoppedmoving", new FixedMetadataValue(plugin, true));
 					Bukkit.getScheduler().runTaskLater(plugin, () -> {
 						player.removeMetadata("teleportanimationstoppedmoving", plugin);
 						player.setAllowFlight(false);
 						player.setFlying(false);
-					}, 2500);
+					}, 2500);*/
+					player.closeInventory();
 				}
 			}
 		}
@@ -125,14 +128,17 @@ public class SelectorInv implements Listener {
 				Bukkit.getPluginManager().callEvent(lobbyTeleportEvent);
 				if(!lobbyTeleportEvent.isCancelled()) {
 					player.sendMessage(lobbyTeleportEvent.getMessage());
-					playTPEffect(lobbyTeleportEvent.getPlayer(), lobbyTeleportEvent.getStartlocation(), lobbyTeleportEvent.getEndlocation());
-					player.setMetadata("teleportanimationstoppedmoving", new FixedMetadataValue(plugin, true));
-					player.closeInventory();
+					if(Bukkit.getPluginManager().isPluginEnabled("EffectLib")) {
+						playTPEffect(lobbyTeleportEvent.getPlayer(), lobbyTeleportEvent.getStartlocation(), lobbyTeleportEvent.getEndlocation());
+					}
+					player.teleport(lobbyTeleportEvent.getEndlocation());
+					/*player.setMetadata("teleportanimationstoppedmoving", new FixedMetadataValue(plugin, true));
 					Bukkit.getScheduler().runTaskLater(plugin, () -> {
 						player.removeMetadata("teleportanimationstoppedmoving", plugin);
 						player.setAllowFlight(false);
 						player.setFlying(false);
-					}, 2500);
+					}, 2500);*/
+					player.closeInventory();
 				}
 			}
 		}

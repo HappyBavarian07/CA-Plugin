@@ -4,9 +4,10 @@ package me.happybavarian07.subCommands.MarkerCommands;/*
  */
 
 import me.happybavarian07.Marker;
-import me.happybavarian07.SubCommand;
+import me.happybavarian07.commandmanagement.SubCommand;
 import me.happybavarian07.events.RemoveCraftAttackMarkerEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -17,8 +18,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class MarkerRemoveCommand extends SubCommand {
+    public MarkerRemoveCommand(String mainCommandName) {
+        super(mainCommandName);
+    }
+
     @Override
-    public boolean onCommand(Player p, String[] args) {
+    public boolean onPlayerCommand(Player player, String[] args) {
         if(args.length != 1) {
             return false;
         }
@@ -29,25 +34,30 @@ public class MarkerRemoveCommand extends SubCommand {
             }
         }
         if(Objects.requireNonNull(new File(plugin.getDataFolder() + File.separator + "Markers").listFiles()).length == 0) {
-            p.sendMessage(lgm.getMessage("Player.Marker.NoMarkersFound", p).replace("%marker%", args[0]));
+            player.sendMessage(lgm.getMessage("Player.Marker.NoMarkersFound", player, false).replace("%marker%", args[0]));
             return true;
         }
         if(playermarker == null) {
-            p.sendMessage(lgm.getMessage("Player.Marker.MarkerDoesntExists", p).replace("%marker%", args[0]));
+            player.sendMessage(lgm.getMessage("Player.Marker.MarkerDoesntExists", player, false).replace("%marker%", args[0]));
             return true;
         }
 
-        RemoveCraftAttackMarkerEvent removeMarkerEvent = new RemoveCraftAttackMarkerEvent(new Marker(playermarker), p);
+        RemoveCraftAttackMarkerEvent removeMarkerEvent = new RemoveCraftAttackMarkerEvent(new Marker(playermarker), player);
         Bukkit.getPluginManager().callEvent(removeMarkerEvent);
         if (!removeMarkerEvent.isCancelled()) {
-            if (UUID.fromString(Objects.requireNonNull(YamlConfiguration.loadConfiguration(playermarker).getString("Marker.Player.UUID"))).equals(p.getUniqueId())) {
+            if (UUID.fromString(Objects.requireNonNull(YamlConfiguration.loadConfiguration(playermarker).getString("Marker.Player.UUID"))).equals(player.getUniqueId())) {
                 playermarker.delete();
-                p.sendMessage(lgm.getMessage("Player.Marker.MarkerRemoved", p).replace("%marker%", args[0]));
+                player.sendMessage(lgm.getMessage("Player.Marker.MarkerRemoved", player, false).replace("%marker%", args[0]));
                 return true;
             }
         }
-        p.sendMessage(lgm.getMessage("Player.Marker.MarkerDoesntExists", p).replace("%marker%", args[0]));
+        player.sendMessage(lgm.getMessage("Player.Marker.MarkerDoesntExists", player, false).replace("%marker%", args[0]));
         return true;
+    }
+
+    @Override
+    public boolean onConsoleCommand(ConsoleCommandSender sender, String[] args) {
+        return false;
     }
 
     @Override

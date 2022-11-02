@@ -3,9 +3,11 @@ main: me.happybavarian07.main.CAPluginMain
 api-version: 1.13
 version: ${project.version}
 author: HappyBavarian07
-depend: [ProtocolLib, PlaceholderAPI, EffectLib, CommandPanels]
+depend: [PlaceholderAPI]
 softdepend:
   - Admin-Panel
+  - CommandPanels
+  - EffectLib
 commands:
   cainfos:
     usage: /cainfos
@@ -16,11 +18,11 @@ commands:
   rules:
     usage: /rules
     description: Zeigt dir die Regeln von CA an.
-    aliases: [rl, rs, ru, regeln, caregeln]
+    aliases: [regeln, caregeln]
   prefix:
-    usage: /prefix <Offline|Online|Redstone>
+    usage: /prefix <Status>
     description: Setzt deinen CraftAttack Status.
-    aliases: [px, pf]
+    aliases: [status]
   afk:
     usage: /afk <on|off>
     description: Setzt deinen Status auf AFK und du kannst dich nicht mehr bewegen!
@@ -61,6 +63,8 @@ permissions:
       ca.admin.*:
         default: op
         children:
+          ca.admin.perplayerlang: true
+          ca.admin.perplayerlangother: true
           ca.admin.orga: true
           ca.admin.fehler.worldcheckerisdis: true
           ca.admin.update: true

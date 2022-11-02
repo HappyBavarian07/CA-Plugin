@@ -1,9 +1,5 @@
 package me.happybavarian07.main;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
-import com.comphenix.protocol.events.PacketContainer;
 import de.happybavarian07.adminpanel.main.AdminPanelMain;
 import de.happybavarian07.adminpanel.utils.VersionComparator;
 import de.slikey.effectlib.EffectManager;
@@ -12,14 +8,15 @@ import de.tr7zw.nbtapi.NBTItem;
 import me.happybavarian07.API.CraftAttackExtension;
 import me.happybavarian07.API.FileManager;
 import me.happybavarian07.API.StartUpLogger;
-import me.happybavarian07.CommandManagerRegistry;
 import me.happybavarian07.GUIs.SelectorInv;
+import me.happybavarian07.GUIs.adminpanelmenus.PrefixMenu;
 import me.happybavarian07.GUIs.prefixes.PrefixConfig;
 import me.happybavarian07.GUIs.prefixes.PrefixInventory;
 import me.happybavarian07.commandManagers.CraftAttackCommandManager;
 import me.happybavarian07.commandManagers.DebugCommandManager;
 import me.happybavarian07.commandManagers.MarkerCommandManager;
 import me.happybavarian07.commandManagers.WorldCommandManager;
+import me.happybavarian07.commandmanagement.CommandManagerRegistry;
 import me.happybavarian07.commands.afkcommand;
 import me.happybavarian07.configs.DiscordConfig;
 import me.happybavarian07.configs.InfoConfig;
@@ -29,12 +26,11 @@ import me.happybavarian07.discord.Discord;
 import me.happybavarian07.language.LanguageFile;
 import me.happybavarian07.language.LanguageManager;
 import me.happybavarian07.language.OldLanguageFileUpdater;
+import me.happybavarian07.language.PerPlayerLanguageHandler;
 import me.happybavarian07.listeners.*;
 import me.happybavarian07.mysql.MySQLHandler;
 import me.rockyhawk.commandpanels.openpanelsmanager.PanelPosition;
 import net.dv8tion.jda.api.entities.Activity;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -42,18 +38,13 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -62,27 +53,20 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UnknownFormatConversionException;
+import java.util.*;
 
 public class CAPluginMain extends JavaPlugin implements Listener {
 
     public static EffectManager em;
     private static CAPluginMain plugin;
     private static String prefix;
-    public ProtocolManager pman;
+    //public ProtocolManager pman;
     public File prefixfile;
     public FileConfiguration prefixconfig;
     public FileConfiguration spawnconfig;
     public FileManager fm;
     public Material waehrung;
-    public BukkitTask spawnvorgang;
-    public int repeattaskmoveevent;
+    public Map<Player, BukkitTask> spawnvorgang;
     List<String> staff = new ArrayList<>();
     StartUpLogger logger;
     PluginManager pm;
@@ -102,6 +86,8 @@ public class CAPluginMain extends JavaPlugin implements Listener {
     private PluginFileLogger fileLogger;
     private de.happybavarian07.adminpanel.utils.NewUpdater updater;
     private OldLanguageFileUpdater langFileUpdater;
+    private boolean languageManagerEnabled;
+    private FileConfiguration dataYML;
 
     public static CAPluginMain getPlugin() {
         return plugin;
@@ -160,19 +146,24 @@ public class CAPluginMain extends JavaPlugin implements Listener {
     }
 
     public void onEnable() {
+        spawnvorgang = new HashMap<>();
+
         setPlugin(this);
         logger = new StartUpLogger();
         saveDefaultConfig();
         this.mySQLHandler = new MySQLHandler(getConfig().getBoolean("CA.settings.MySQL.disabled", false));
         setupDiscord();
-        em = new EffectManager(getPlugin());
+        if(Bukkit.getPluginManager().isPluginEnabled("EffectLib")) {
+            em = new EffectManager(getPlugin());
+        }
         waehrung = Material.DIAMOND;
         infoConfig = new InfoConfig(this);
-        pman = ProtocolLibrary.getProtocolManager();
+        //pman = ProtocolLibrary.getProtocolManager();
         rulesActivated = getConfig().getBoolean("CA.rules.activate");
         worldChangeCheck = getConfig().getBoolean("CA.world.Access_Check");
-        languageManager = new LanguageManager(this, new File(getDataFolder(), "/languages"));
-        langFileUpdater = new OldLanguageFileUpdater(this);
+        prefix = Utils.format(null, getConfig().getString("CA.PluginPrefix", "[CA-Plugin]"), "");
+        languageManager = new LanguageManager(this, new File(getDataFolder(), "/languages"), prefix);
+        langFileUpdater = new OldLanguageFileUpdater();
         if (Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
             updater = new de.happybavarian07.adminpanel.utils.NewUpdater(AdminPanelMain.getPlugin(), 98642, "CA-Plugin-%version%.jar", this,
                     "https://github.com/HappyBavarian07/CA-Plugin/releases/latest/download/CA-Plugin-" + getPluginVersion(this) + ".jar", true);
@@ -186,7 +177,8 @@ public class CAPluginMain extends JavaPlugin implements Listener {
             fileLogger.createLogFile();
             logger.message("§e§lDone!§r");
         }
-        this.prefixInventory = new PrefixInventory(getPlugin(), new PrefixConfig(getPlugin()), "Prefix_Panel");
+        if (Bukkit.getPluginManager().isPluginEnabled("CommandPanels"))
+            this.prefixInventory = new PrefixInventory(getPlugin(), new PrefixConfig(getPlugin()), "Prefix_Panel");
 
 
         fm = new FileManager(this);
@@ -205,6 +197,11 @@ public class CAPluginMain extends JavaPlugin implements Listener {
             pm.disablePlugin(this);
         }
         logger.coloredSpacer(ChatColor.BLUE).message("§6Creating and initializing Configs:§r").spacer();
+        try {
+            ConfigUpdater.update(this, "config.yml", new File(this.getDataFolder() + "/config.yml"), null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         fm.createFile("", "spawnloc", "yml");
         fm.createFile("", "prefixes", "yml");
         //fm.createFile("", "FakePlates", "yml");
@@ -214,7 +211,6 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         prefixfile = fm.getFile("", "prefixes", "yml");
         new Utils(getPlugin(), prefixconfig);
         new CraftAttackExtension().register();
-        prefix = Utils.format(null, getConfig().getString("CA.PluginPrefix", "[CA-Plugin]"), "");
         logger.message("§e§lDone§r").emptySpacer().spacer();
 
         /*
@@ -287,16 +283,19 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         getCommandManagerRegistry().register(new DebugCommandManager());
         getCommandManagerRegistry().register(new WorldCommandManager());
         getCommandManagerRegistry().register(new MarkerCommandManager());
+
+        dataYML = YamlConfiguration.loadConfiguration(new File(getDataFolder() + "/data.yml"));
+        languageManager.setPlhandler(new PerPlayerLanguageHandler(languageManager, new File(getDataFolder() + "/data.yml"), dataYML));
+
         LanguageFile deLang = new LanguageFile(this, "de");
         LanguageFile enLang = new LanguageFile(this, "en");
         languageManager.addLanguagesToList(true);
         languageManager.addLang(deLang, deLang.getLangName());
         languageManager.addLang(enLang, enLang.getLangName());
-        languageManager.setCurrentLang(languageManager.getLang(getConfig().getString("CA.settings.language")), true);
-        if (languageManager != null && languageManager.getMessage("Plugin.Enabled", null) != null &&
-                !languageManager.getMessage("Plugin.Enabled", null).equals("null config") &&
-                !languageManager.getMessage("Plugin.Enabled", null).startsWith("null path: Messages.")) {
-            getServer().getConsoleSender().sendMessage(languageManager.getMessage("Plugin.Enabled", null));
+        languageManager.setCurrentLang(languageManager.getLang(getConfig().getString("CA.settings.language"), true), true);
+        setLanguageManagerEnabled(languageManager != null && languageManager.getCurrentLang() != null);
+        if (isLanguageManagerEnabled()) {
+            getServer().getConsoleSender().sendMessage(languageManager.getMessage("Plugin.Enabled", null, false));
         } else {
             getServer().getConsoleSender().sendMessage("[CA-Plugin] enabled!");
         }
@@ -308,33 +307,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                 }
             }
         }, 50L);
-        try {
-            ConfigUpdater.update(this, "config.yml", new File(this.getDataFolder() + "/config.yml"), null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         if (getConfig().getBoolean("CA.settings.Updater.AutomaticLanguageFileUpdating")) {
-            for (LanguageFile langFiles : languageManager.getRegisteredLanguages().values()) {
-                if (plugin.getResource("languages/" + langFiles.getLangName() + ".yml") == null) continue;
-                File oldFile = langFiles.getLangFile();
-                File newFile = new File(langFiles.getLangFile().getParentFile().getPath() + "/" + langFiles.getLangName() + "-new.yml");
-                YamlConfiguration newConfig = YamlConfiguration.loadConfiguration(newFile);
-                InputStream defaultStream = plugin.getResource("languages/" + langFiles.getLangName() + ".yml");
-                if (defaultStream != null) {
-                    YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultStream));
-                    newConfig.setDefaults(defaultConfig);
-                }
-
-
-                newConfig.options().copyDefaults(true);
-                try {
-                    newConfig.save(newFile);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                langFileUpdater.updateFile(oldFile, newConfig, langFiles.getLangName());
-                newFile.delete();
-            }
             languageManager.reloadLanguages(null, false);
         }
         if (Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
@@ -355,6 +328,19 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                 }.runTaskTimer(plugin, (plugin.getConfig().getLong("CA.settings.Updater.UpdateCheckTime") * 60 * 20), (plugin.getConfig().getLong("CA.settings.Updater.UpdateCheckTime") * 60 * 20));
             }
         }
+    }
+
+    public void reloadData() {
+        saveResource("data.yml", false);
+        dataYML = YamlConfiguration.loadConfiguration(new File(getDataFolder() + "/data.yml"));
+    }
+
+    public boolean isLanguageManagerEnabled() {
+        return languageManagerEnabled;
+    }
+
+    private void setLanguageManagerEnabled(boolean languageManagerEnabled) {
+        this.languageManagerEnabled = languageManagerEnabled;
     }
 
     public World getCraftAttackWorld() {
@@ -488,10 +474,8 @@ public class CAPluginMain extends JavaPlugin implements Listener {
             discord.getBot().shutdown();
             discord = null;
         }
-        if (languageManager != null && languageManager.getMessage("Plugin.Disabled", null) != null &&
-                !languageManager.getMessage("Plugin.Disabled", null).equals("null config") &&
-                !languageManager.getMessage("Plugin.Disabled", null).startsWith("null path: Messages.Plugin.")) {
-            getServer().getConsoleSender().sendMessage(languageManager.getMessage("Plugin.Disabled", null));
+        if (isLanguageManagerEnabled()) {
+            getServer().getConsoleSender().sendMessage(languageManager.getMessage("Plugin.Disabled", null, false));
         } else {
             getServer().getConsoleSender().sendMessage("[CA-Plugin] disabled!");
         }
@@ -573,7 +557,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                             return true;
                         }
                     } else {
-                        player.sendMessage(languageManager.getMessage("Player." + (args.length < 1 ? "TooFewArguments" : "TooManyArguments"), player));
+                        player.sendMessage(languageManager.getMessage("Player." + (args.length < 1 ? "TooFewArguments" : "TooManyArguments"), player, false));
                     }
                 }
             }
@@ -638,7 +622,21 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                                 return true;
                             }
                         } else if (args.length == 0) {
-                            getPrefixInventory().getPrefixPanel().open(player, PanelPosition.Top);
+                            /*CommandPanels & Admin-Panel*/
+                            /*TRUE & FALSE*/
+                            if (Bukkit.getPluginManager().isPluginEnabled("CommandPanels") &&
+                                    !Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
+                                getPrefixInventory().getPrefixPanel().open(player, PanelPosition.Top);
+                            }/*FALSE & TRUE*/ else if (!Bukkit.getPluginManager().isPluginEnabled("CommandPanels") &&
+                                    Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
+                                new PrefixMenu(AdminPanelMain.getAPI().getPlayerMenuUtility(player)).open();
+                            }/*TRUE & TRUE*/ else if (Bukkit.getPluginManager().isPluginEnabled("CommandPanels") &&
+                                    Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
+                                new PrefixMenu(AdminPanelMain.getAPI().getPlayerMenuUtility(player)).open();
+                            }/*FALSE & FALSE*/ else if (!Bukkit.getPluginManager().isPluginEnabled("CommandPanels") &&
+                                    Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
+                                player.sendMessage("§cNo Prefix Panel found! Install one of these two Plugins: Command-Panels (Rockyhawk), Admin-Panel (HappyBavarian07)");
+                            }
                         }
                     } else {
                         player.sendMessage("§cDu kannst deinen Prefix nur setzen wenn du in der Craft Attack Welt bist!");
@@ -646,7 +644,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                 }
             }
         } else {
-            sender.sendMessage(languageManager.getMessage("Console.ExecutesPlayerCommand", null));
+            sender.sendMessage(languageManager.getMessage("Console.ExecutesPlayerCommand", null, false));
         }
         return true;
     }

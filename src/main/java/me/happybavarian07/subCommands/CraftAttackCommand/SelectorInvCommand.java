@@ -4,21 +4,33 @@ package me.happybavarian07.subCommands.CraftAttackCommand;/*
  */
 
 import me.happybavarian07.GUIs.SelectorInv;
-import me.happybavarian07.SubCommand;
+import me.happybavarian07.commandmanagement.CommandData;
+import me.happybavarian07.commandmanagement.SubCommand;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@CommandData(playerRequired = true)
 public class SelectorInvCommand extends SubCommand {
+    public SelectorInvCommand(String mainCommandName) {
+        super(mainCommandName);
+    }
+
     @Override
-    public boolean onCommand(Player player, String[] args) {
+    public boolean onPlayerCommand(Player player, String[] args) {
         if(args.length != 0) {
             return false;
         }
         SelectorInv.openSelectorInv(player);
-        player.sendMessage(lgm.getMessage("Player.OpenSelector", player));
+        player.sendMessage(lgm.getMessage("Player.OpenSelector", player, false));
         return true;
+    }
+
+    @Override
+    public boolean onConsoleCommand(ConsoleCommandSender sender, String[] args) {
+        return false;
     }
 
     @Override

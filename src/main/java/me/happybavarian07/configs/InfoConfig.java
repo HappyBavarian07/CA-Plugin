@@ -12,7 +12,7 @@ import java.util.logging.Level;
 
 public class InfoConfig {
 
-	private CAPluginMain plugin;
+	private final CAPluginMain plugin;
 	private FileConfiguration dataConfig = null;
 	private File configFile = null;
 

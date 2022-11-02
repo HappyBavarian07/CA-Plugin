@@ -3,10 +3,13 @@ package me.happybavarian07.subCommands.DebugCommands;/*
  * @Date 09.11.2021 | 16:46
  */
 
-import me.happybavarian07.PaginatedList;
-import me.happybavarian07.SubCommand;
+import me.happybavarian07.commandmanagement.CommandData;
+import me.happybavarian07.commandmanagement.PaginatedList;
+import me.happybavarian07.commandmanagement.SubCommand;
 import me.happybavarian07.main.Utils;
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -14,9 +17,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@CommandData()
 public class PrefixesCommand extends SubCommand {
-    @Override
-    public boolean onCommand(Player player, String[] args) {
+    public PrefixesCommand(String mainCommandName) {
+        super(mainCommandName);
+    }
+
+    public boolean onCommand(CommandSender sender, String[] args) {
         if (args.length != 1) {
             return false;
         }
@@ -25,26 +32,36 @@ public class PrefixesCommand extends SubCommand {
             List<Player> onlinePlayers = new ArrayList<>(Bukkit.getOnlinePlayers());
             PaginatedList<Player> messages = new PaginatedList<>(onlinePlayers).maxItemsPerPage(10).sort();
             if (!messages.containsPage(page)) {
-                player.sendMessage(lgm.getMessage("Player.Debug.Prefixes.PageDoesNotExist", player));
+                sender.sendMessage(lgm.getMessage("Player.Debug.Prefixes.PageDoesNotExist", sender instanceof Player ? (Player) sender : null, false));
                 return true;
             }
-            player.sendMessage(lgm.getMessage("Player.Debug.Prefixes.Header", player)
+            sender.sendMessage(lgm.getMessage("Player.Debug.Prefixes.Header", sender instanceof Player ? (Player) sender : null, false)
                     .replace("%page%", String.valueOf(page))
                     .replace("%max_page%", String.valueOf(messages.getMaxPage())));
             for (Player online : messages.getPage(page)) {
-                player.sendMessage(format(lgm.getMessage("Player.Debug.Prefixes.Format", online), online));
+                sender.sendMessage(format(lgm.getMessage("Player.Debug.Prefixes.Format", online, false), online));
             }
-            player.sendMessage(lgm.getMessage("Player.Debug.Prefixes.Footer", player)
+            sender.sendMessage(lgm.getMessage("Player.Debug.Prefixes.Footer", sender instanceof Player ? (Player) sender : null, false)
                     .replace("%page%", String.valueOf(page))
                     .replace("%max_page%", String.valueOf(messages.getMaxPage())));
         } catch (NumberFormatException e) {
-            player.sendMessage(lgm.getMessage("Player.Commands.NotANumber", player));
+            sender.sendMessage(lgm.getMessage("Player.Commands.NotANumber", sender instanceof Player ? (Player) sender : null, false));
             return true;
         } catch (PaginatedList.ListNotSortedException e2) {
             e2.printStackTrace();
             return true;
         }
         return true;
+    }
+
+    @Override
+    public boolean onPlayerCommand(Player player, String[] args) {
+        return onCommand(player, args);
+    }
+
+    @Override
+    public boolean onConsoleCommand(ConsoleCommandSender sender, String[] args) {
+        return onCommand(sender, args);
     }
 
     @Override

@@ -1,17 +1,9 @@
-package me.happybavarian07;/*
+package me.happybavarian07.commandmanagement;/*
  * @Author HappyBavarian07
  * @Date 06.11.2021 | 12:22
  */
 
-import me.happybavarian07.language.LanguageManager;
-import me.happybavarian07.main.CAPluginMain;
-import me.happybavarian07.main.Utils;
-import org.bukkit.entity.Player;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PaginatedList<T> {
     private final Map<Integer, List<T>> resultMap;
@@ -22,6 +14,12 @@ public class PaginatedList<T> {
     public PaginatedList(List<T> listOfThings) {
         this.listOfThings = listOfThings;
         this.resultMap = new HashMap<>();
+    }
+
+    public PaginatedList(Set<T> listOfThings) {
+        this.listOfThings = new ArrayList<>();
+        this.listOfThings.addAll(listOfThings);
+        resultMap = new HashMap<>();
     }
 
     public Map<Integer, List<T>> getResultMap() throws ListNotSortedException {

@@ -28,28 +28,28 @@ public class afkcommand implements CommandExecutor, Listener {
 				if(args[0].equalsIgnoreCase("on")) {
 					if(!afkplayers.containsKey(player)) {
 						afkplayers.put(player, true);
-						player.sendMessage(lgm.getMessage("Player.Afk.AfkOn", player));
+						player.sendMessage(lgm.getMessage("Player.Afk.AfkOn", player, false));
 						player.setCanPickupItems(false);
 						Utils.setPlayerPrefix(player, Prefix.AFK);
 					} else {
-						player.sendMessage(lgm.getMessage("Player.Afk.AlreadyAfk", player));
+						player.sendMessage(lgm.getMessage("Player.Afk.AlreadyAfk", player, false));
 					}
 					return true;
 				} else {
 					if(args[0].equalsIgnoreCase("off")) {
 						if(afkplayers.containsKey(player)) {
-							player.sendMessage(lgm.getMessage("Player.Afk.AfkOff", player));
+							player.sendMessage(lgm.getMessage("Player.Afk.AfkOff", player, false));
 							afkplayers.remove(player);
 							player.setCanPickupItems(true);
 							Utils.setPlayerPrefix(player, Prefix.STANDARD);
 						} else {
-							player.sendMessage(lgm.getMessage("Player.Afk.NotAfk", player));
+							player.sendMessage(lgm.getMessage("Player.Afk.NotAfk", player, false));
 						}
 						return true;
 					}
 				}
 			} else {
-				player.sendMessage(lgm.getMessage("Player.NoPermissions", player));
+				player.sendMessage(lgm.getMessage("Player.NoPermissions", player, false));
 				return true;
 			}
 		}
@@ -60,29 +60,29 @@ public class afkcommand implements CommandExecutor, Listener {
 					if(args[1].equalsIgnoreCase("on")) {
 						if(!afkplayers.containsKey(target)) {
 							afkplayers.put(target, true);
-							player.sendMessage(lgm.getMessage("Player.Afk.AfkOnOther", player));
-							target.sendMessage(lgm.getMessage("Player.Afk.AfkOnOtherTarget", player));
+							player.sendMessage(lgm.getMessage("Player.Afk.AfkOnOther", player, false));
+							target.sendMessage(lgm.getMessage("Player.Afk.AfkOnOtherTarget", player, false));
 							Utils.setPlayerPrefix(target, Prefix.AFK);
 						} else {
-							player.sendMessage(lgm.getMessage("Player.Afk.AlreadyAfkOther", player));
+							player.sendMessage(lgm.getMessage("Player.Afk.AlreadyAfkOther", player, false));
 						}
 					} else {
 						if(args[1].equalsIgnoreCase("off")) {
 							if(afkplayers.containsKey(target)) {
-								player.sendMessage(lgm.getMessage("Player.Afk.AfkOffOther", player));
-								target.sendMessage(lgm.getMessage("Player.Afk.AfkOffOtherTarget", player));
+								player.sendMessage(lgm.getMessage("Player.Afk.AfkOffOther", player, false));
+								target.sendMessage(lgm.getMessage("Player.Afk.AfkOffOtherTarget", player, false));
 								afkplayers.remove(target);
 								Utils.setPlayerPrefix(target, Prefix.STANDARD);
 							} else {
-								player.sendMessage(lgm.getMessage("Player.Afk.NotAfkOther", player));
+								player.sendMessage(lgm.getMessage("Player.Afk.NotAfkOther", player, false));
 							}
 						}
 					}
 				} catch (NullPointerException e) {
-					player.sendMessage(lgm.getMessage("Player.PlayerIsNull", player));
+					player.sendMessage(lgm.getMessage("Player.PlayerIsNull", player, false));
 				}
 			} else {
-				player.sendMessage(lgm.getMessage("Player.NoPermissions", player));
+				player.sendMessage(lgm.getMessage("Player.NoPermissions", player, false));
 			}
 		}
 		
@@ -97,7 +97,7 @@ public class afkcommand implements CommandExecutor, Listener {
 	public void onMove(PlayerMoveEvent e) {
 		Player p = e.getPlayer();
 		if(afkplayers.containsKey(p)) {
-			p.sendMessage(lgm.getMessage("Player.Afk.MoveWhileAfk", p));
+			p.sendMessage(lgm.getMessage("Player.Afk.MoveWhileAfk", p, false));
 			e.setCancelled(true);
 		}
 	}

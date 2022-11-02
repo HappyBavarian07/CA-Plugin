@@ -3,19 +3,26 @@ package me.happybavarian07.subCommands.WorldCommands;/*
  * @Date 09.11.2021 | 16:20
  */
 
-import me.happybavarian07.SubCommand;
+import me.happybavarian07.commandmanagement.CommandData;
+import me.happybavarian07.commandmanagement.SubCommand;
 import me.happybavarian07.main.CAPluginMain;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.*;
 
+@CommandData(playerRequired = true)
 public class ImportWorldCommand extends SubCommand {
+    public ImportWorldCommand(String mainCommandName) {
+        super(mainCommandName);
+    }
+
     @Override
-    public boolean onCommand(Player player, String[] args) {
+    public boolean onPlayerCommand(Player player, String[] args) {
         if(args.length != 1) {
             return false;
         }
@@ -38,6 +45,11 @@ public class ImportWorldCommand extends SubCommand {
         }
         player.sendMessage("§4No World with this Name found!");
         return true;
+    }
+
+    @Override
+    public boolean onConsoleCommand(ConsoleCommandSender sender, String[] args) {
+        return false;
     }
 
     @Override

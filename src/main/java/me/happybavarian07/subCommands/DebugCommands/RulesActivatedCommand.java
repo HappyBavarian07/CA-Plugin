@@ -3,15 +3,22 @@ package me.happybavarian07.subCommands.DebugCommands;/*
  * @Date 09.11.2021 | 16:44
  */
 
-import me.happybavarian07.SubCommand;
+import me.happybavarian07.commandmanagement.CommandData;
+import me.happybavarian07.commandmanagement.SubCommand;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@CommandData()
 public class RulesActivatedCommand extends SubCommand {
+    public RulesActivatedCommand(String mainCommandName) {
+        super(mainCommandName);
+    }
+
     @Override
-    public boolean onCommand(Player player, String[] args) {
+    public boolean onPlayerCommand(Player player, String[] args) {
         if(args.length != 0) {
             return false;
         }
@@ -19,6 +26,19 @@ public class RulesActivatedCommand extends SubCommand {
             player.sendMessage("§3Rules are currently: §aenabled");
         } else {
             player.sendMessage("§3Rules are currently: §cdisabled");
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onConsoleCommand(ConsoleCommandSender sender, String[] args) {
+        if(args.length != 0) {
+            return false;
+        }
+        if (plugin.isRulesActivated()) {
+            sender.sendMessage("§3Rules are currently: §aenabled");
+        } else {
+            sender.sendMessage("§3Rules are currently: §cdisabled");
         }
         return true;
     }
