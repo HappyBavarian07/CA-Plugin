@@ -1,8 +1,7 @@
 package me.happybavarian07.listeners;
 
-import me.happybavarian07.main.Prefix;
-import me.happybavarian07.main.Utils;
 import me.happybavarian07.main.CAPluginMain;
+import me.happybavarian07.main.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -15,8 +14,6 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
-
-import java.io.IOException;
 
 public class CraftAttackEvents implements Listener {
 
@@ -37,11 +34,14 @@ public class CraftAttackEvents implements Listener {
         if (player.getWorld().getName().equals(plugin.getConfig().getString("CA.world.CraftAttack_World"))) {
             if (plugin.isWorldChangeCheck()) {
                 if (plugin.getConfig().getStringList("CA.world.Cam_Players").contains(player.getName())) {
-                    if(!player.hasPlayedBefore()) {
+                    if (!player.hasPlayedBefore()) {
                         player.setGameMode(GameMode.SPECTATOR);
                         player.setMetadata("CamAccountScoreboardTag", new FixedMetadataValue(plugin, true));
                         World world = Bukkit.getWorld(plugin.spawnconfig.getString("CraftAttack.Spawn.World"));
-                        if(world == null) { player.sendMessage("§cNo CraftAttack World found! §4Please contact an Admin!"); return; }
+                        if (world == null) {
+                            player.sendMessage("§cNo CraftAttack World found! §4Please contact an Admin!");
+                            return;
+                        }
                         double x = plugin.spawnconfig.getDouble("CraftAttack.Spawn.X");
                         double y = plugin.spawnconfig.getDouble("CraftAttack.Spawn.Y");
                         double Z = plugin.spawnconfig.getDouble("CraftAttack.Spawn.Z");
@@ -49,19 +49,22 @@ public class CraftAttackEvents implements Listener {
                         float pitch = (float) plugin.spawnconfig.getDouble("CraftAttack.Spawn.Pitch");
                         Location spawnloc = new Location(world, x, y, Z, yaw, pitch);
                         player.teleport(spawnloc);
-                        Utils.setPlayerPrefix(player, Prefix.CAM);
+                        Utils.setPlayerPrefix(player, plugin.getPrefix("Cam"), true);
                         player.sendMessage(CAPluginMain.getPrefix() + " §2Du bist jetzt in der §5Craft§6Attack§11 §2Welt als Cam angemeldet!");
                     } else {
                         player.setGameMode(GameMode.SPECTATOR);
                         player.setMetadata("CamAccountScoreboardTag", new FixedMetadataValue(plugin, true));
-                        Utils.setPlayerPrefix(player, Prefix.CAM);
+                        Utils.setPlayerPrefix(player, plugin.getPrefix("Cam"), true);
                         player.sendMessage(CAPluginMain.getPrefix() + " §2Du bist jetzt in der §5Craft§6Attack§11 §2Welt als Cam angemeldet!");
                     }
                 } else if (plugin.getConfig().getStringList("CA.world.CraftAttack_Players").contains(player.getName())) {
-                    if(!player.hasPlayedBefore()) {
+                    if (!player.hasPlayedBefore()) {
                         player.removeMetadata("CamAccountScoreboardTag", plugin);
                         World world = Bukkit.getWorld(plugin.spawnconfig.getString("CraftAttack.Spawn.World"));
-                        if(world == null) { player.sendMessage("§cNo CraftAttack World found! §4Please contact an Admin!"); return; }
+                        if (world == null) {
+                            player.sendMessage("§cNo CraftAttack World found! §4Please contact an Admin!");
+                            return;
+                        }
                         double x = plugin.spawnconfig.getDouble("CraftAttack.Spawn.X");
                         double y = plugin.spawnconfig.getDouble("CraftAttack.Spawn.Y");
                         double Z = plugin.spawnconfig.getDouble("CraftAttack.Spawn.Z");
@@ -69,22 +72,24 @@ public class CraftAttackEvents implements Listener {
                         float pitch = (float) plugin.spawnconfig.getDouble("CraftAttack.Spawn.Pitch");
                         Location spawnloc = new Location(world, x, y, Z, yaw, pitch);
                         player.teleport(spawnloc);
-                        Utils.setPlayerPrefix(player, Utils.getPrefixFromConfig(player));
+                        Utils.setPlayerPrefix(player, Utils.getPrefixFromConfig(player), true);
                         player.sendMessage(CAPluginMain.getPrefix() + " §2Du bist jetzt in der §5Craft§6Attack§11 §2Welt angemeldet!");
                     } else {
                         /*if(!player.getWorld().getName().equals(plugin.getConfig().getString("CA.world.CraftAttack_World"))) {
 
                         }*/
                         player.removeMetadata("CamAccountScoreboardTag", plugin);
-                        Utils.setPlayerPrefix(player, Utils.getPrefixFromConfig(player));
+                        Utils.setPlayerPrefix(player, Utils.getPrefixFromConfig(player), true);
                         player.sendMessage(CAPluginMain.getPrefix() + " §2Du bist jetzt in der §5Craft§6Attack§11 §2Welt angemeldet!");
                     }
                 } else {
-                    player.teleport(Utils.randomLobby().getSpawnLocation());
+                    if (plugin.isLobbySystemEnabled()) {
+                        player.teleport(Utils.randomLobby().getSpawnLocation());
+                    }
 
                     player.kickPlayer("§cDu wurdest gekickt da du kein offizieler Teilnehmer von Craft Attack bist!\n" + "\n"
                             + "§cFalls du glaubst das ist ein Fehler dann melde dich beim Craft Attack Team!\n" + "\n"
-                            + "§6Falls du dich f§r das n§chste CraftAttack registrieren willst dann sage dem Team bescheid!");
+                            + "§cFalls du dich für das nächste CraftAttack registrieren willst dann sage dem Team bescheid!");
                 }
             } else {
                 if (player.hasPermission("ca.admin.worldcheckerisdis")) {
@@ -94,7 +99,9 @@ public class CraftAttackEvents implements Listener {
         } else {
             player.removeMetadata("CamAccountScoreboardTag", plugin);
             Utils.loadTablist(player, false);
-            player.teleport(Utils.randomLobby().getSpawnLocation());
+            if (plugin.isLobbySystemEnabled()) {
+                player.teleport(Utils.randomLobby().getSpawnLocation());
+            }
         }
     }
 
@@ -104,11 +111,14 @@ public class CraftAttackEvents implements Listener {
         if (player.getWorld().getName().equals(plugin.getConfig().getString("CA.world.CraftAttack_World"))) {
             if (plugin.isWorldChangeCheck()) {
                 if (plugin.getConfig().getStringList("CA.world.Cam_Players").contains(player.getName())) {
-                    if(!player.hasPlayedBefore()) {
+                    if (!player.hasPlayedBefore()) {
                         player.setGameMode(GameMode.SPECTATOR);
                         player.setMetadata("CamAccountScoreboardTag", new FixedMetadataValue(plugin, true));
                         World world = Bukkit.getWorld(plugin.spawnconfig.getString("CraftAttack.Spawn.World"));
-                        if(world == null) { player.sendMessage("§cNo CraftAttack World found! §4Please contact an Admin!"); return; }
+                        if (world == null) {
+                            player.sendMessage("§cNo CraftAttack World found! §4Please contact an Admin!");
+                            return;
+                        }
                         double x = plugin.spawnconfig.getDouble("CraftAttack.Spawn.X");
                         double y = plugin.spawnconfig.getDouble("CraftAttack.Spawn.Y");
                         double Z = plugin.spawnconfig.getDouble("CraftAttack.Spawn.Z");
@@ -116,20 +126,23 @@ public class CraftAttackEvents implements Listener {
                         float pitch = (float) plugin.spawnconfig.getDouble("CraftAttack.Spawn.Pitch");
                         Location spawnloc = new Location(world, x, y, Z, yaw, pitch);
                         player.teleport(spawnloc);
-                        Utils.setPlayerPrefix(player, Prefix.CAM);
+                        Utils.setPlayerPrefix(player, plugin.getPrefix("Cam"), true);
                         player.sendMessage(CAPluginMain.getPrefix() + " §2Du bist jetzt in der §5Craft§6Attack§11 §2Welt als Cam angemeldet!");
                     } else {
                         player.setGameMode(GameMode.SPECTATOR);
                         player.setMetadata("CamAccountScoreboardTag", new FixedMetadataValue(plugin, true));
-                        Utils.setPlayerPrefix(player, Prefix.CAM);
+                        Utils.setPlayerPrefix(player, plugin.getPrefix("Cam"), true);
                         player.sendMessage(CAPluginMain.getPrefix() + " §2Du bist jetzt in der §5Craft§6Attack§11 §2Welt als Cam angemeldet!");
                     }
 
                 } else if (plugin.getConfig().getStringList("CA.world.CraftAttack_Players").contains(player.getName())) {
-                    if(!player.hasPlayedBefore()) {
+                    if (!player.hasPlayedBefore()) {
                         player.removeMetadata("CamAccountScoreboardTag", plugin);
                         World world = Bukkit.getWorld(plugin.spawnconfig.getString("CraftAttack.Spawn.World"));
-                        if(world == null) { player.sendMessage("§cNo CraftAttack World found! §4Please contact an Admin!"); return; }
+                        if (world == null) {
+                            player.sendMessage("§cNo CraftAttack World found! §4Please contact an Admin!");
+                            return;
+                        }
                         double x = plugin.spawnconfig.getDouble("CraftAttack.Spawn.X");
                         double y = plugin.spawnconfig.getDouble("CraftAttack.Spawn.Y");
                         double Z = plugin.spawnconfig.getDouble("CraftAttack.Spawn.Z");
@@ -137,19 +150,21 @@ public class CraftAttackEvents implements Listener {
                         float pitch = (float) plugin.spawnconfig.getDouble("CraftAttack.Spawn.Pitch");
                         Location spawnloc = new Location(world, x, y, Z, yaw, pitch);
                         player.teleport(spawnloc);
-                        Utils.setPlayerPrefix(player, Utils.getPrefixFromConfig(player));
+                        Utils.setPlayerPrefix(player, Utils.getPrefixFromConfig(player), true);
                         player.sendMessage(CAPluginMain.getPrefix() + " §2Du bist jetzt in der §5Craft§6Attack§11 §2Welt angemeldet!");
                     } else {
                         player.removeMetadata("CamAccountScoreboardTag", plugin);
-                        Utils.setPlayerPrefix(player, Utils.getPrefixFromConfig(player));
+                        Utils.setPlayerPrefix(player, Utils.getPrefixFromConfig(player), true);
                         player.sendMessage(CAPluginMain.getPrefix() + " §2Du bist jetzt in der §5Craft§6Attack§11 §2Welt angemeldet!");
                     }
                 } else {
-                    player.teleport(Utils.randomLobby().getSpawnLocation());
+                    if (plugin.isLobbySystemEnabled()) {
+                        player.teleport(Utils.randomLobby().getSpawnLocation());
+                    }
 
                     player.kickPlayer("§cDu wurdest gekickt da du kein offizieler Teilnehmer von Craft Attack bist!\n" + "\n"
                             + "§cFalls du glaubst das ist ein Fehler dann melde dich beim Craft Attack Team!\n" + "\n"
-                            + "§6Falls du dich f§r das n§chste CraftAttack registrieren willst dann gehe auf unsere Website: §4craftattackwebsite.test");
+                            + "§cFalls du dich für das nächste CraftAttack registrieren willst dann sage dem Team bescheid!");
                 }
             } else {
                 if (player.hasPermission("ca.admin.*") || player.hasPermission("ca.admin.worldcheckerisdisabled") || player.hasPermission("ca.*")) {
@@ -169,7 +184,7 @@ public class CraftAttackEvents implements Listener {
         e.setQuitMessage(quitmessage);
         p.setPlayerListHeader("");
         p.setPlayerListFooter("");
-        for(Player player : Bukkit.getOnlinePlayers()) {
+        for (Player player : Bukkit.getOnlinePlayers()) {
             player.showPlayer(p);
         }
         p.setInvulnerable(false);

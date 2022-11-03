@@ -71,23 +71,23 @@ public class MySQLHandler {
     public Prefix getPrefix(String uuid) {
         if (useMySQL()) {
             if (!hasData(uuid))
-                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), Prefix.EMPTY, false, "");
+                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), plugin.getPrefix("Empty"), false, "");
             try {
                 PreparedStatement ps = connection.prepareStatement("SELECT Prefix FROM " + mySQL.getTablePrefix() + "playerdata WHERE UUID = ?");
                 ps.setString(1, uuid);
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
-                    return Prefix.valueOf(rs.getString("Prefix"));
+                    return plugin.getPrefix(rs.getString("Prefix"));
                 }
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
         } else {
             if (!hasData(uuid)) {
-                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), Prefix.EMPTY, false, "");
-                return Prefix.EMPTY;
+                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), plugin.getPrefix("Empty"), false, "");
+                return plugin.getPrefix("Empty");
             }
-            return Prefix.valueOf(config.getString("Players." + uuid + ".prefix"));
+            return plugin.getPrefix(config.getString("Players." + uuid + ".prefix"));
         }
         return null;
     }
@@ -108,7 +108,7 @@ public class MySQLHandler {
             }
         } else {
             if (!hasData(uuid)) {
-                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), Prefix.EMPTY, false, "");
+                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), plugin.getPrefix("Empty"), false, "");
                 return "";
             }
             return config.getString("Players." + uuid + ".discordID");
@@ -119,7 +119,7 @@ public class MySQLHandler {
     public boolean isVerified(String uuid) {
         if (useMySQL()) {
             if (!hasData(uuid))
-                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), Prefix.EMPTY, false, "");
+                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), plugin.getPrefix("Empty"), false, "");
             try {
                 PreparedStatement ps = connection.prepareStatement("SELECT DiscordVerified FROM " + mySQL.getTablePrefix() + "playerdata WHERE UUID = ?");
                 ps.setString(1, uuid);
@@ -132,7 +132,7 @@ public class MySQLHandler {
             }
         } else {
             if (!hasData(uuid)) {
-                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), Prefix.EMPTY, false, "");
+                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), plugin.getPrefix("Empty"), false, "");
                 return false;
             }
             return config.getBoolean("Players." + uuid + ".discordVerified");
@@ -148,7 +148,7 @@ public class MySQLHandler {
                     PreparedStatement ps = connection.prepareStatement("UPDATE " + mySQL.getTablePrefix() + "playerdata SET NAME = ?, UUID = ?, Prefix = ?, DiscordVerified = ?, discordID = ? WHERE UUID = ?");
                     ps.setString(1, player.getName());
                     ps.setString(2, uuid);
-                    ps.setString(3, prefix.toString());
+                    ps.setString(3, prefix.getConfigName());
                     ps.setBoolean(4, verified);
                     ps.setString(5, verifiedID);
                     ps.setString(6, uuid);
@@ -157,7 +157,7 @@ public class MySQLHandler {
                     PreparedStatement ps = connection.prepareStatement("INSERT INTO " + mySQL.getTablePrefix() + "playerdata(NAME,UUID,Prefix,DiscordVerified,discordID) VALUES (?,?,?,?,?)");
                     ps.setString(1, player.getName());
                     ps.setString(2, uuid);
-                    ps.setString(3, prefix.toString());
+                    ps.setString(3, prefix.getConfigName());
                     ps.setBoolean(4, verified);
                     ps.setString(5, verifiedID);
                     ps.executeUpdate();
@@ -169,7 +169,7 @@ public class MySQLHandler {
             String uuid = player.getUniqueId().toString();
             config.set("Players." + uuid + ".name", player.getName());
             config.set("Players." + uuid + ".uuid", player.getUniqueId().toString());
-            config.set("Players." + uuid + ".prefix", prefix.toString());
+            config.set("Players." + uuid + ".prefix", prefix.getConfigName());
             config.set("Players." + uuid + ".discordID", verifiedID);
             config.set("Players." + uuid + ".discordVerified", verified);
             try {
@@ -201,7 +201,7 @@ public class MySQLHandler {
             if (!hasData(uuid)) insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), prefix, false, "");
             try {
                 PreparedStatement ps = connection.prepareStatement("UPDATE " + mySQL.getTablePrefix() + "playerdata SET Prefix = ? WHERE UUID = ?");
-                ps.setString(1, prefix.toString());
+                ps.setString(1, prefix.getConfigName());
                 ps.setString(2, uuid);
                 ps.executeUpdate();
             } catch (SQLException throwables) {
@@ -209,9 +209,9 @@ public class MySQLHandler {
             }
         } else {
             if (!hasData(uuid)) {
-                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), Prefix.EMPTY, false, "");
+                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), plugin.getPrefix("Empty"), false, "");
             }
-            config.set("Players." + uuid + ".prefix", prefix.toString());
+            config.set("Players." + uuid + ".prefix", prefix.getConfigName());
             try {
                 config.save(configFile);
             } catch (IOException e) {
@@ -223,7 +223,7 @@ public class MySQLHandler {
     public void setVerified(String uuid, Boolean verified, String discordID) {
         if (useMySQL()) {
             if (!hasData(uuid))
-                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), Prefix.EMPTY, false, "");
+                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), plugin.getPrefix("Empty"), false, "");
             try {
                 PreparedStatement ps = connection.prepareStatement("UPDATE " + mySQL.getTablePrefix() + "playerdata SET DiscordVerified = ?, discordID = ? WHERE UUID = ?");
                 ps.setBoolean(1, verified);
@@ -235,7 +235,7 @@ public class MySQLHandler {
             }
         } else {
             if (!hasData(uuid)) {
-                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), Prefix.EMPTY, false, "");
+                insert((Player) Bukkit.getOfflinePlayer(UUID.fromString(uuid)), plugin.getPrefix("Empty"), false, "");
             }
             config.set("Players." + uuid + ".discordID", discordID);
             config.set("Players." + uuid + ".discordVerified", verified);

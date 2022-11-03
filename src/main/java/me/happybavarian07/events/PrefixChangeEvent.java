@@ -9,16 +9,19 @@ import org.bukkit.event.HandlerList;
 public class PrefixChangeEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
-    private boolean cancelled;
-
-    private Prefix newPrefix;
     private final Prefix oldPrefix;
     private final Player player;
+    private boolean cancelled;
+    private Prefix prefix;
 
-    public PrefixChangeEvent(Prefix newPrefix, Prefix oldPrefix, Player player) {
-        this.newPrefix = newPrefix;
+    public PrefixChangeEvent(Prefix prefix, Prefix oldPrefix, Player player) {
+        this.prefix = prefix;
         this.oldPrefix = oldPrefix;
         this.player = player;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 
     public Player getPlayer() {
@@ -26,26 +29,28 @@ public class PrefixChangeEvent extends Event implements Cancellable {
     }
 
     public Prefix getNewPrefix() {
-        return newPrefix;
+        return prefix;
+    }
+
+    public void setNewPrefix(Prefix prefix) {
+        this.prefix = prefix;
     }
 
     public Prefix getOldPrefix() {
         return oldPrefix;
     }
 
-    public void setNewPrefix(Prefix newPrefix) {
-        this.newPrefix = newPrefix;
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
     }
 
     @Override
-    public boolean isCancelled() { return cancelled; }
+    public void setCancelled(boolean cancel) {
+        this.cancelled = cancel;
+    }
 
-    @Override
-    public void setCancelled(boolean cancel) { this.cancelled = cancel; }
-
-    public HandlerList getHandlers() { return handlers; }
-
-    public static HandlerList getHandlerList() {
+    public HandlerList getHandlers() {
         return handlers;
     }
 }

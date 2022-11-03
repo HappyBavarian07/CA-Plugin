@@ -45,7 +45,7 @@ public class SelectorInv implements Listener {
 				}
 			}
 			inv.setItem(13, createGuiItem(Material.GRASS_BLOCK,
-					Utils.format(player, "&5Craft&6Attack&11", CAPluginMain.getPrefix()), // Name
+					Utils.format(player, "&5Craft&6Attack", CAPluginMain.getPrefix()), // Name
 					Utils.format(player, "&7Players: &7(&b%ca_onlineplayers%&7/&b%ca_players%&7)", CAPluginMain.getPrefix()),
 					Utils.format(player, "&2Hier kommst du zur CraftAttack Welt!", CAPluginMain.getPrefix()), // Lore...
 					Utils.format(player, "&4Natürlich nur wenn du ein Teilnehmer bist!", CAPluginMain.getPrefix())));
@@ -98,12 +98,12 @@ public class SelectorInv implements Listener {
 		Player player = (Player) e.getWhoClicked();
 		LobbyTeleportEvent lobbyTeleportEvent;
 		if(clickedItem.getType() == Material.GRASS_BLOCK) {
-			if(clickedItem.getItemMeta().getDisplayName().equals(Utils.format(null, "&5Craft&6Attack&11", CAPluginMain.getPrefix()))) {
+			if(clickedItem.getItemMeta().getDisplayName().equals(Utils.format(null, "&5Craft&6Attack", CAPluginMain.getPrefix()))) {
 				World world = plugin.getCraftAttackWorld();
 				if (world == null)
 					world = new WorldCreator(Objects.requireNonNull(plugin.spawnconfig.getString("CraftAttack.Spawn.World"))).createWorld();
 
-				lobbyTeleportEvent = new LobbyTeleportEvent(player, player.getLocation(), world.getSpawnLocation(), "CraftAttack1", Utils.format(player, "&4Sending you to the Craft Attack World!", CAPluginMain.getPrefix()));
+				lobbyTeleportEvent = new LobbyTeleportEvent(player, player.getLocation(), world.getSpawnLocation(), "CraftAttack", Utils.format(player, "&4Sending you to the Craft Attack World!", CAPluginMain.getPrefix()));
 				Bukkit.getPluginManager().callEvent(lobbyTeleportEvent);
 				if(!lobbyTeleportEvent.isCancelled()) {
 					player.sendMessage(lobbyTeleportEvent.getMessage());
@@ -123,6 +123,10 @@ public class SelectorInv implements Listener {
 		}
 		if(clickedItem.getType() == Material.BEACON) {
 			if(clickedItem.getItemMeta().getDisplayName().equals(Utils.format(player, "&4Random Lobby", CAPluginMain.getPrefix()))) {
+				if(!plugin.isLobbySystemEnabled()) {
+					player.sendMessage("§cLobby System is disabled!");
+					return;
+				}
 				World randomLobby = Utils.randomLobby();
 				lobbyTeleportEvent = new LobbyTeleportEvent(player, player.getLocation(), randomLobby.getSpawnLocation(), "RandomLobby", Utils.format(player, "&4Sending you to a Random Lobby!", CAPluginMain.getPrefix()));
 				Bukkit.getPluginManager().callEvent(lobbyTeleportEvent);
@@ -148,8 +152,8 @@ public class SelectorInv implements Listener {
 	public void onLobbyTP(LobbyTeleportEvent e) {
 		if(e.getLocName().equals("RandomLobby")) {
 			e.setMessage("&aSending you to a &1R&2a&3n&4d&5o&6m &7L&8o&9b&ab&by!");
-		} else if (e.getLocName().equals("CraftAttack1")) {
-			e.setMessage("&aSending you to: &5Craft&6Attack&11!");
+		} else if (e.getLocName().equals("CraftAttack")) {
+			e.setMessage("&aSending you to: &5Craft&6Attack!");
 		} else {
 			e.setCancelled(true);
 		}

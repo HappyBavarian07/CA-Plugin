@@ -3,7 +3,7 @@ package me.happybavarian07.commands;/*
  * @Date 26.04.2022 | 19:33
  */
 
-import de.happybavarian07.adminpanel.utils.Utils;
+import me.happybavarian07.main.Utils;
 import me.happybavarian07.language.LanguageManager;
 import me.happybavarian07.language.PlaceholderType;
 import me.happybavarian07.main.CAPluginMain;
@@ -81,7 +81,7 @@ public class PerPlayerLanguageCommand implements CommandExecutor, TabCompleter {
             lgm.getPlhandler().setPlayerLanguage(playerUUID, langName);
             player.sendMessage(lgm.getMessage("Player.PerPlayerLang.PerPlayerLangSetOther", player, true));
         } else {
-            Utils.chat(CAPluginMain.getPrefix() + "&c Usage: &6" + command.getUsage());
+            player.sendMessage(Utils.formatChatMessage(null, CAPluginMain.getPrefix() + "&c Usage: &6" + command.getUsage(), true, false));
         }
         return true;
     }

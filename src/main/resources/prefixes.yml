@@ -1,0 +1,8 @@
+# The Prefix Format is the following:
+# <PrefixName>:
+#   prefix: '<Prefix>'
+#   suffix: '<Suffix>'
+#   configName: '<ConfigName>'
+#   menuMaterial: '<MenuMaterial>' (When not used, just put BARRIER or null)
+
+Prefixes: {}

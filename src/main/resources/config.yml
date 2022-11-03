@@ -14,6 +14,9 @@
 Lobby-Worlds:
   - lobby1
   - lobby2
+# Disables the Lobby System
+LobbySystemEnabled: true
+LobbySelectorBlock: ENDER_CHEST
 CA:
   PluginPrefix: '&r[&cC&3A&7-&2Plugin&r] '
   settings:

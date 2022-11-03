@@ -3,7 +3,7 @@ package me.happybavarian07.language;/*
  * @Date 25.04.2022 | 17:07
  */
 
-import de.happybavarian07.adminpanel.utils.Utils;
+import me.happybavarian07.main.Utils;
 
 public class Placeholder {
     private final String key;
@@ -31,7 +31,7 @@ public class Placeholder {
     public String replace(String s) {
         if(!stringContainsPlaceholder(s)) return s;
 
-        return s.replace(key, Utils.chat(value.toString()));
+        return s.replace(key, Utils.formatChatMessage(null, value.toString(), true, false));
     }
 
     public boolean stringContainsPlaceholder(String s) {

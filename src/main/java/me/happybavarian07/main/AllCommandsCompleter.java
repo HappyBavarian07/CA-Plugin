@@ -37,12 +37,7 @@ public class AllCommandsCompleter implements TabCompleter {
         }
         if (cmd.getName().equalsIgnoreCase("prefix")) {
             if (prefixargs.isEmpty()) {
-                prefixargs.add("Offline");
-                prefixargs.add("Online");
-                prefixargs.add("Redstone");
-                prefixargs.add("Live");
-                prefixargs.add("Afk");
-                prefixargs.add("Record");
+                prefixargs.addAll(CAPluginMain.getPlugin().getPrefixList().keySet());
             }
 
             List<String> result = new ArrayList<>();

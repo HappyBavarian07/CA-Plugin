@@ -161,7 +161,7 @@ public class Utils {
         return infos;
     }
 
-    public static void setPlayerPrefix(Player player, Prefix prefix) {
+    public static void setPlayerPrefix(Player player, Prefix prefix, boolean statusMessage) {
         PrefixChangeEvent prefixChangeEvent = new PrefixChangeEvent(prefix, getPrefixFromConfig(player), player);
         Bukkit.getPluginManager().callEvent(prefixChangeEvent);
         if (!prefixChangeEvent.isCancelled()) {
@@ -171,22 +171,23 @@ public class Utils {
             String MessageSplitter = CAPluginMain.getPlugin().getLanguageManager().getMessage("Chat.Splitter", null, false);
             String PlayerPrefix = prefixChangeEvent.getNewPrefix().getInGamePrefix();
             String PlayerSuffix = prefixChangeEvent.getNewPrefix().getInGameSuffix();
-            if(player.hasPermission("ca.admin.orga")) {
+            if (player.hasPermission("ca.admin.orga")) {
                 PlayerSuffix = Utils.format(player, " &f[&4Orga&f]", CAPluginMain.getPrefix());
             }
 
-
-            prefixChangeEvent.getPlayer().sendMessage(format(prefixChangeEvent.getPlayer(), "&3Status: &f" + prefixChangeEvent.getNewPrefix().getConfigName() + "&3 gesetzt!\n" +
-                            "   Chatformat: " + PlayerPrefix + "%player_name%" + PlayerSuffix + MessageSplitter + "<Message>\n" +
-                            "   Tablistformat: " + PlayerPrefix + "%player_name%" + PlayerSuffix,
-                    CAPluginMain.getPrefix()));
+            if (statusMessage)
+                prefixChangeEvent.getPlayer().sendMessage(format(prefixChangeEvent.getPlayer(), "&3Status: &f" + prefixChangeEvent.getNewPrefix().getConfigName() + "&3 gesetzt!\n" +
+                                "   Chatformat: " + PlayerPrefix + "%player_name%" + PlayerSuffix + MessageSplitter + "<Message>\n" +
+                                "   Tablistformat: " + PlayerPrefix + "%player_name%" + PlayerSuffix,
+                        CAPluginMain.getPrefix()));
             savePrefixToConfig(prefixChangeEvent.getNewPrefix(), prefixChangeEvent.getPlayer().getUniqueId());
             loadTablist(prefixChangeEvent.getPlayer(), true);
         }
     }
 
     public static Prefix getPrefixFromConfig(Player player) {
-        if (plugin.getConfig().getStringList("Lobby-Worlds").contains(player.getWorld().getName())) return Prefix.LOBBY;
+        if (plugin.getConfig().getStringList("Lobby-Worlds").contains(player.getWorld().getName()))
+            return plugin.getPrefix("Lobby");
         return mySQLHandler.getPrefix(player.getUniqueId().toString());
 
         /*if(!prefixConfig.contains(player.getUniqueId().toString())) return Prefix.STANDARD;
@@ -199,7 +200,7 @@ public class Utils {
     }
 
     private static void savePrefixToConfig(Prefix prefix, UUID uuid) {
-        // EMPTY, STANDARD, OFFLINE, ONLINE, REDSTONE, LIVE, RECORD, CAM
+        // EMPTY, STANDARD, OFFLINE, ONLINE, REDSTONE, LIVE, RECORD, CAM, etc.
         mySQLHandler.setPrefix(uuid.toString(), prefix);
         /*try {
             prefixConfig.set(uuid.toString(), prefix.getConfigName());
@@ -250,7 +251,7 @@ public class Utils {
                 }
                 String prefix = getPrefixFromConfig(player).getInGamePrefix();
                 String suffix = getPrefixFromConfig(player).getInGameSuffix();
-                if(player.hasPermission("ca.admin.orga")) {
+                if (player.hasPermission("ca.admin.orga")) {
                     suffix = Utils.format(player, " &f[&4Orga&f]", CAPluginMain.getPrefix());
                 }
                 player.setPlayerListName(prefix + player.getDisplayName() + suffix);
@@ -261,7 +262,7 @@ public class Utils {
     public static World randomLobby() {
         World lobbyWorld = null;
 
-        if(plugin.getConfig().getStringList("Lobby-Worlds").size() == 0) {
+        if (plugin.getConfig().getStringList("Lobby-Worlds").size() == 0) {
             return Bukkit.getWorlds().get(0);
         }
 

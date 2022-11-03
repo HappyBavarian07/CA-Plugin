@@ -91,7 +91,9 @@ public class PlayerManager implements Listener {
     public void onLeave(PlayerQuitEvent e) {
         e.getPlayer().removeMetadata("CraftAttackPluginSpawnElytra", plugin);
         // Random lobby World
-        e.getPlayer().teleport(Utils.randomLobby().getSpawnLocation());
+        if(plugin.isLobbySystemEnabled()) {
+            e.getPlayer().teleport(Utils.randomLobby().getSpawnLocation());
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

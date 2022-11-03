@@ -3,7 +3,7 @@ package me.happybavarian07.language;/*
  * @Date 15.11.2021 | 17:59
  */
 
-import de.happybavarian07.adminpanel.configupdater.KeyBuilder;
+import me.happybavarian07.configupdater.KeyBuilder;
 import de.happybavarian07.adminpanel.main.AdminPanelMain;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

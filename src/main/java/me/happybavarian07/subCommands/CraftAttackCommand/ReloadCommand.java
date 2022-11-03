@@ -3,11 +3,9 @@ package me.happybavarian07.subCommands.CraftAttackCommand;/*
  * @Date 09.11.2021 | 15:15
  */
 
-import de.happybavarian07.adminpanel.main.AdminPanelMain;
 import de.happybavarian07.adminpanel.utils.PluginUtils;
 import me.happybavarian07.commandmanagement.CommandData;
 import me.happybavarian07.commandmanagement.SubCommand;
-import me.happybavarian07.main.Prefix;
 import me.happybavarian07.main.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.ConsoleCommandSender;
@@ -35,6 +33,7 @@ public class ReloadCommand extends SubCommand {
             plugin.getInfoConfig().reloadConfig();
             plugin.getRuleConfig().reloadConfig();
             plugin.getDiscordConfig().reloadConfig();
+            plugin.reloadPrefixConfig();
             lgm.reloadLanguages(player, true);
             player.sendMessage(lgm.getMessage("Plugin.ReloadedConfigSuccessfully", player, false));
         }
@@ -48,7 +47,7 @@ public class ReloadCommand extends SubCommand {
 
             for (Player player2 : Bukkit.getOnlinePlayers()) {
                 if (player2.getWorld().equals(plugin.getCraftAttackWorld())) {
-                    Utils.setPlayerPrefix(player2, Utils.getPrefixFromConfig(player2) != null ? Utils.getPrefixFromConfig(player2) : Prefix.EMPTY);
+                    Utils.setPlayerPrefix(player2, Utils.getPrefixFromConfig(player2) != null ? Utils.getPrefixFromConfig(player2) : plugin.getPrefix("Empty"), true);
                     Utils.loadTablist(player2, true);
                 }
             }
@@ -65,8 +64,9 @@ public class ReloadCommand extends SubCommand {
                     player2.removeMetadata("SpawnTeleportAnfrage", plugin);
                     player2.removeMetadata("CamAccountScoreboardTag", plugin);
                 }
-                plugin.getDiscord().getBot().shutdown();
-                if(!Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
+                if (plugin.getDiscord() != null)
+                    plugin.getDiscord().getBot().shutdown();
+                if (!Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
                     Bukkit.getPluginManager().disablePlugin(plugin);
                     Bukkit.getPluginManager().enablePlugin(Bukkit.getPluginManager().getPlugin("CA-Plugin"));
                 } else {
@@ -107,7 +107,7 @@ public class ReloadCommand extends SubCommand {
 
             for (Player player2 : Bukkit.getOnlinePlayers()) {
                 if (player2.getWorld().equals(plugin.getCraftAttackWorld())) {
-                    Utils.setPlayerPrefix(player2, Utils.getPrefixFromConfig(player2) != null ? Utils.getPrefixFromConfig(player2) : Prefix.EMPTY);
+                    Utils.setPlayerPrefix(player2, Utils.getPrefixFromConfig(player2) != null ? Utils.getPrefixFromConfig(player2) : plugin.getPrefix("Empty"), true);
                     Utils.loadTablist(player2, true);
                 }
             }
@@ -124,8 +124,9 @@ public class ReloadCommand extends SubCommand {
                     player2.removeMetadata("SpawnTeleportAnfrage", plugin);
                     player2.removeMetadata("CamAccountScoreboardTag", plugin);
                 }
-                plugin.getDiscord().getBot().shutdown();
-                if(!Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
+                if (plugin.getDiscord() != null)
+                    plugin.getDiscord().getBot().shutdown();
+                if (!Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
                     Bukkit.getPluginManager().disablePlugin(plugin);
                     Bukkit.getPluginManager().enablePlugin(Bukkit.getPluginManager().getPlugin("CA-Plugin"));
                 } else {

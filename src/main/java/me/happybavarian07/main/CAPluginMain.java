@@ -34,6 +34,7 @@ import net.dv8tion.jda.api.entities.Activity;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -53,6 +54,8 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class CAPluginMain extends JavaPlugin implements Listener {
@@ -61,8 +64,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
     private static CAPluginMain plugin;
     private static String prefix;
     //public ProtocolManager pman;
-    public File prefixfile;
-    public FileConfiguration prefixconfig;
+    public File prefixFile;
     public FileConfiguration spawnconfig;
     public FileManager fm;
     public Material waehrung;
@@ -88,6 +90,10 @@ public class CAPluginMain extends JavaPlugin implements Listener {
     private OldLanguageFileUpdater langFileUpdater;
     private boolean languageManagerEnabled;
     private FileConfiguration dataYML;
+    private boolean lobbySystemEnabled;
+    // <ConfigName, Prefix>
+    private Map<String, Prefix> prefixList;
+    private FileConfiguration prefixConfig;
 
     public static CAPluginMain getPlugin() {
         return plugin;
@@ -99,6 +105,14 @@ public class CAPluginMain extends JavaPlugin implements Listener {
 
     public static String getPrefix() {
         return prefix;
+    }
+
+    public boolean isLobbySystemEnabled() {
+        return lobbySystemEnabled;
+    }
+
+    public void setLobbySystemEnabled(boolean lobbySystemEnabled) {
+        this.lobbySystemEnabled = lobbySystemEnabled;
     }
 
     public FileManager getFileMan() {
@@ -145,15 +159,30 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         return plugin.getDescription().getVersion();
     }
 
+    public void reloadPrefixConfig() {
+        if(this.prefixFile == null)
+            this.prefixFile = new File(getDataFolder(), "prefixes.yml");
+
+        this.prefixConfig = YamlConfiguration.loadConfiguration(this.prefixFile);
+
+        InputStream defaultStream = getResource("prefixes.yml");
+        if(defaultStream != null) {
+            YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultStream));
+            this.prefixConfig.setDefaults(defaultConfig);
+        }
+    }
+
     public void onEnable() {
+        prefixList = new HashMap<>();
         spawnvorgang = new HashMap<>();
 
         setPlugin(this);
         logger = new StartUpLogger();
         saveDefaultConfig();
         this.mySQLHandler = new MySQLHandler(getConfig().getBoolean("CA.settings.MySQL.disabled", false));
+        setLobbySystemEnabled(getConfig().getBoolean("LobbySystemEnabled", true));
         setupDiscord();
-        if(Bukkit.getPluginManager().isPluginEnabled("EffectLib")) {
+        if (Bukkit.getPluginManager().isPluginEnabled("EffectLib")) {
             em = new EffectManager(getPlugin());
         }
         waehrung = Material.DIAMOND;
@@ -204,12 +233,32 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         }
         fm.createFile("", "spawnloc", "yml");
         fm.createFile("", "prefixes", "yml");
+        prefixConfig = fm.getConfig("", "prefixes", "yml");
+        if (!prefixConfig.contains("Prefixes"))
+            prefixConfig.createSection("Prefixes");
+        prefixConfig.options().header("The Prefix Format is the following:" + "\n" +
+                "<PrefixName>:" + "\n" +
+                "  prefix: '<Prefix>'" + "\n" +
+                "  suffix: '<Suffix>'" + "\n" +
+                "  configName: '<ConfigName>'" + "\n" +
+                "  menuMaterial: '<Material>'");
+        for (String prefixName : prefixConfig.getConfigurationSection("Prefixes").getKeys(false)) {
+            ConfigurationSection section;
+            if ((section = prefixConfig.getConfigurationSection("Prefixes." + prefixName)) != null) {
+                if (prefixList.containsKey(section.getString("configName"))) continue;
+                Prefix prefix = new Prefix(
+                        Utils.formatChatMessage(null, section.getString("prefix"), true, true),
+                        Utils.formatChatMessage(null, section.getString("suffix"), true, true),
+                        section.getString("configName"),
+                        section.getString("menuMaterial") == null ? Material.BARRIER : Material.matchMaterial(section.getString("menuMaterial")));
+                prefixList.put(prefix.getConfigName(), prefix);
+            }
+        }
         //fm.createFile("", "FakePlates", "yml");
-        fm.createFile("", "ChestLog", "yml");
+        //fm.createFile("", "ChestLog", "yml");
         spawnconfig = fm.getConfig("", "spawnloc", "yml");
-        prefixconfig = fm.getConfig("", "prefixes", "yml");
-        prefixfile = fm.getFile("", "prefixes", "yml");
-        new Utils(getPlugin(), prefixconfig);
+        prefixFile = fm.getFile("", "prefixes", "yml");
+        new Utils(getPlugin(), prefixConfig);
         new CraftAttackExtension().register();
         logger.message("§e§lDone§r").emptySpacer().spacer();
 
@@ -249,7 +298,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         setCraftAttackWorld(Bukkit.getWorld(getConfig().getString("CA.world.CraftAttack_World", "world")));
         ruleConfig = new RuleConfig(this);
         try {
-            prefixconfig.save(prefixfile);
+            prefixConfig.save(prefixFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -267,15 +316,19 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                     if ((online.getGameMode() == GameMode.SPECTATOR) || (online.getGameMode() == GameMode.CREATIVE)) {
                         return;
                     }
-                    if (online.hasMetadata("CraftAttackPluginSpawnElytra")) {
-                        online.setGliding(true);
-                        online.setAllowFlight(true);
-                    } else {
+                    if (online.isOnGround()) {
                         online.setGliding(false);
                         online.setAllowFlight(false);
                     }
-                    online.setFlying(false);
-                    online.setFallDistance(0);
+                    if (online.hasMetadata("CraftAttackPluginSpawnElytra")) {
+                        online.setGliding(true);
+                        online.setAllowFlight(true);
+                        online.setFallDistance(0);
+                    } else if (!online.hasMetadata("CraftAttackPluginSpawnElytra")) {
+                        online.setGliding(false);
+                        online.setAllowFlight(false);
+                        online.setFlying(false);
+                    }
                 }
             }
         }, 0L, 1L);
@@ -299,14 +352,28 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         } else {
             getServer().getConsoleSender().sendMessage("[CA-Plugin] enabled!");
         }
+        prefixList.put("Empty", new Prefix("", "", "Empty", Material.BARRIER));
+        prefixList.put("Lobby", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Lobby.Prefix", null, false),
+                CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Lobby.Suffix", null, false),
+                "Lobby", Material.BARRIER));
+        prefixList.put("Standard", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Standard.Prefix", null, false),
+                CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Standard.Suffix", null, false),
+                "Standard", Material.BARRIER));
+        prefixList.put("Cam", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Cam.Prefix", null, false),
+                CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Cam.Suffix", null, false),
+                "Cam", Material.BARRIER));
+        prefixList.put("Afk", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Afk.Prefix", null, false),
+                CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Afk.Suffix", null, false),
+                "Afk", Material.BARRIER));
+        //System.out.println("Prefix List: " + prefixList);
         Bukkit.getScheduler().runTaskLater(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (player.getWorld().equals(getCraftAttackWorld())) {
-                    Utils.setPlayerPrefix(player, Utils.getPrefixFromConfig(player) != null ? Utils.getPrefixFromConfig(player) : Prefix.EMPTY);
+                    Utils.setPlayerPrefix(player, Utils.getPrefixFromConfig(player) != null ? Utils.getPrefixFromConfig(player) : plugin.getPrefix("Empty"), false);
                     Utils.loadTablist(player, true);
                 }
             }
-        }, 50L);
+        }, 300L);
         if (getConfig().getBoolean("CA.settings.Updater.AutomaticLanguageFileUpdating")) {
             languageManager.reloadLanguages(null, false);
         }
@@ -333,6 +400,27 @@ public class CAPluginMain extends JavaPlugin implements Listener {
     public void reloadData() {
         saveResource("data.yml", false);
         dataYML = YamlConfiguration.loadConfiguration(new File(getDataFolder() + "/data.yml"));
+    }
+
+    public Prefix getPrefix(String configName) {
+        int count = 0;
+        for (String key : prefixList.keySet()) {
+            count++;
+            if (configName.equalsIgnoreCase(key)) {
+                //System.out.println("Key: " + key);
+                //System.out.println("Value: " + prefixList.get(key));
+                //System.out.println("Count: " + count);
+                return prefixList.get(key);
+            }
+        }
+        return null;
+    }
+
+    public Prefix prefixFromMaterial(Material menuMaterial) {
+        for (Prefix prefix : prefixList.values()) {
+            if (prefix.getMenuMaterial().equals(menuMaterial)) return prefix;
+        }
+        return null;
     }
 
     public boolean isLanguageManagerEnabled() {
@@ -436,7 +524,8 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         logger.message("§6Bed Events§r");
         pm2.registerEvents(new BedListener(), this);
         //pm2.registerEvents(new TrollItemsGUI(this, getConfig()), this);
-        pm2.registerEvents(new LobbyEventListener(getPlugin()), this);
+        if (isLobbySystemEnabled())
+            pm2.registerEvents(new LobbyEventListener(getPlugin()), this);
         pm2.registerEvents(new SelectorInv(this, this.getConfig()), this);
         logger.message("§e§lDone§r").coloredSpacer(ChatColor.BLUE).emptySpacer().coloredSpacer(ChatColor.BLUE);
     }
@@ -614,11 +703,11 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                         if (args.length == 1) {
                             // neuer Prefix Code
                             try {
-                                Prefix prefix = Prefix.valueOf(args[0].toUpperCase());
-                                Utils.setPlayerPrefix(player, prefix);
+                                Prefix prefix = plugin.getPrefix(args[0]);
+                                Utils.setPlayerPrefix(player, prefix, true);
                                 return true;
                             } catch (NullPointerException | IllegalStateException e) {
-                                Utils.setPlayerPrefix(player, Prefix.STANDARD);
+                                Utils.setPlayerPrefix(player, plugin.getPrefix("Standard"), true);
                                 return true;
                             }
                         } else if (args.length == 0) {
@@ -650,14 +739,18 @@ public class CAPluginMain extends JavaPlugin implements Listener {
     }
 
     public FileConfiguration getPrefixConfig() {
-        return prefixconfig;
+        return prefixConfig;
     }
 
     public File getPrefixFile() {
-        return prefixfile;
+        return prefixFile;
     }
 
     public StartUpLogger getStartUpLogger() {
         return logger;
+    }
+
+    public Map<String, Prefix> getPrefixList() {
+        return prefixList;
     }
 }

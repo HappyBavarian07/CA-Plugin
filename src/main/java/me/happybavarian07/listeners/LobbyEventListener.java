@@ -113,7 +113,7 @@ public class LobbyEventListener implements Listener, CommandExecutor {
         World world = e.getPlayer().getWorld();
         if(config.getStringList("Lobby-Worlds").contains(world.getName())) {
             if(!isBuilding(e.getPlayer().getUniqueId())) {
-                if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock() != null && e.getClickedBlock().getType() == Material.ENDER_CHEST) {
+                if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock() != null && e.getClickedBlock().getType() == Material.matchMaterial(plugin.getConfig().getString("LobbySelectorBlock"))) {
                     if(Bukkit.getPluginManager().isPluginEnabled("EffectLib")) {
                         EffectManager em = new EffectManager(plugin);
                         effect = new HelixEffect(em);

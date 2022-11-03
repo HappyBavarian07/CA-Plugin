@@ -1,7 +1,7 @@
 package me.happybavarian07.language;
 
-import de.happybavarian07.adminpanel.configupdater.ConfigUpdater;
-import de.happybavarian07.adminpanel.utils.Utils;
+import me.happybavarian07.configupdater.ConfigUpdater;
+import me.happybavarian07.main.Utils;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;

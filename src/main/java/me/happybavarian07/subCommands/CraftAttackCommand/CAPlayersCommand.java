@@ -3,7 +3,7 @@ package me.happybavarian07.subCommands.CraftAttackCommand;/*
  * @Date 09.11.2021 | 15:31
  */
 
-import de.happybavarian07.adminpanel.commandmanagement.PaginatedList;
+import me.happybavarian07.commandmanagement.PaginatedList;
 import me.happybavarian07.commandmanagement.CommandData;
 import me.happybavarian07.commandmanagement.SubCommand;
 import me.happybavarian07.language.PlaceholderType;
