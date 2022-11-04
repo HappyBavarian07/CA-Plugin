@@ -48,6 +48,8 @@ commands:
     description: Use it to unlink your Discord
 
 permissions:
+  ca.prefix:
+    default: true
   ca.*:
     default: op
     children:
@@ -57,7 +59,10 @@ permissions:
       ca.player.*:
         default: true
         children:
-          ca.player.spawn: true
+          ca.player.spawn:
+            default: true
+            children:
+              ca.player.spawn.other: true
           ca.player.skull: true
           ca.player.marker: true
       ca.admin.*:

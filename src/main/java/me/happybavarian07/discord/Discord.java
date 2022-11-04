@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
@@ -29,6 +30,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
@@ -187,8 +189,8 @@ public class Discord extends ListenerAdapter implements Listener {
             messageBuilder.setAuthor(e.getPlayer().getName());
             messageBuilder.setColor(Color.GREEN);
             messageBuilder.setDescription(":green_square: **" + e.getPlayer().getName() + "** joined the Server");
-            minecraftChatChannel.sendMessageEmbeds(messageBuilder.build()).queue();
-        } catch (NoClassDefFoundError ignored) {
+            minecraftChatChannel.sendMessageEmbeds(messageBuilder.build()).complete(true);
+        } catch (NoClassDefFoundError | RateLimitedException ignored) {
         }
     }
 
@@ -201,15 +203,16 @@ public class Discord extends ListenerAdapter implements Listener {
             messageBuilder.setAuthor(e.getPlayer().getName());
             messageBuilder.setColor(Color.RED);
             messageBuilder.setDescription(":red_square: **" + e.getPlayer().getName() + "** left the Server");
-            minecraftChatChannel.sendMessageEmbeds(messageBuilder.build()).queue();
-        } catch (NoClassDefFoundError ignored) {
+            minecraftChatChannel.sendMessageEmbeds(messageBuilder.build()).complete(true);
+        } catch (NoClassDefFoundError | RateLimitedException ignored) {
         }
     }
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         String[] args = event.getMessage().getContentRaw().split(" "); //!link args args args
-        if (args.length > 0 && args[0].equalsIgnoreCase("!link")) {//!link <Name>
+        if(args.length == 0) return;
+        if (args[0].equalsIgnoreCase("!link")) {//!link <Name>
             try {
                 if (event.getAuthor().isBot() || event.getAuthor().isSystem() || event.isWebhookMessage()) return;
                 if (event.getMember().getRoles().stream().filter(role -> role.getName().equals("Verified")).findAny().orElse(null) != null) {
@@ -239,10 +242,12 @@ public class Discord extends ListenerAdapter implements Listener {
                 if (event.getAuthor().isBot() || event.getAuthor().isSystem() || event.isWebhookMessage()) return;
 
                 if (event.getChannel().equals(minecraftChatChannel) && transferDiscordChat()) {
-                    String message = event.getMessage().getContentRaw();
+                    String message = event.getMessage().getContentDisplay();
+                    System.out.println("Message: " + message);
+                    System.out.println("Event Message: " + event.getMessage());
+                    System.out.println("Event Content: " + event.getMessage().getContentDisplay());
                     User user = event.getAuthor();
                     if (event.getGuild().getMember(user) == null) return;
-
                     if (isVerified(Objects.requireNonNull(event.getGuild().getMember(user)))) {
                         Bukkit.broadcastMessage(Utils.format(null,
                                 "&f[&eDiscord &a" + user.getName() + "&f#&b" + user.getDiscriminator() + "&f (&a✔&f)] &3" + message,

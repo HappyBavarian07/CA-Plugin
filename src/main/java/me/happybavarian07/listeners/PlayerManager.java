@@ -18,6 +18,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
@@ -66,6 +67,13 @@ public class PlayerManager implements Listener {
             if (r.nextInt(3) == 1) {
                 e.getEntity().getWorld().dropItem(e.getEntity().getLocation(), head);
             }
+        }
+    }
+
+    @EventHandler
+    public void onDoubleJump(PlayerToggleFlightEvent event) {
+        if(event.getPlayer().hasMetadata("CraftAttackPluginSpawnElytra")) {
+            event.setCancelled(true);
         }
     }
 

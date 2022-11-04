@@ -60,6 +60,10 @@ public class CASpawnCommand extends SubCommand {
             }.runTaskLater(plugin, 100L));
             return true;
         } else if (args.length == 1) {
+            if(!player.hasPermission("ca.player.spawn.other")) {
+                player.sendMessage(lgm.getPermissionMessage(player, "ca.player.spawn.other"));
+                return true;
+            }
             Player target = Bukkit.getPlayerExact(args[0]);
             if (target == null) {
                 player.sendMessage(lgm.getMessage("Player.PlayerIsNull", null, false).replace("%target_name%", args[0]));
@@ -69,6 +73,7 @@ public class CASpawnCommand extends SubCommand {
             target.teleport(spawnloc);
             target.sendMessage("§aSending you to Spawn!");
             player.sendMessage("§aSending " + target.getName() + " to Spawn!");
+            return true;
         }
         return false;
     }
@@ -77,6 +82,9 @@ public class CASpawnCommand extends SubCommand {
 
     @Override
     public boolean onConsoleCommand(ConsoleCommandSender sender, String[] args) {
+        if(args.length != 1) {
+            return false;
+        }
         FileConfiguration spawnconfig = plugin.spawnconfig;
         World world = Bukkit.getWorld(Objects.requireNonNull(spawnconfig.getString("CraftAttack.Spawn.World")));
         if (world == null) {
@@ -89,18 +97,16 @@ public class CASpawnCommand extends SubCommand {
         float yaw = (float) spawnconfig.getDouble("CraftAttack.Spawn.Yaw");
         float pitch = (float) spawnconfig.getDouble("CraftAttack.Spawn.Pitch");
         Location spawnloc = new Location(world, x, y, Z, yaw, pitch);
-        if (args.length == 1) {
-            Player target = Bukkit.getPlayerExact(args[0]);
-            if (target == null) {
-                sender.sendMessage(lgm.getMessage("Player.PlayerIsNull", null, false).replace("%target_name%", args[0]));
-                return true;
-            }
-
-            target.teleport(spawnloc);
-            target.sendMessage("§aSending you to Spawn!");
-            sender.sendMessage("§aSending " + target.getName() + " to Spawn!");
+        Player target = Bukkit.getPlayerExact(args[0]);
+        if (target == null) {
+            sender.sendMessage(lgm.getMessage("Player.PlayerIsNull", null, false).replace("%target_name%", args[0]));
+            return true;
         }
-        return false;
+
+        target.teleport(spawnloc);
+        target.sendMessage("§aSending you to Spawn!");
+        sender.sendMessage("§aSending " + target.getName() + " to Spawn!");
+        return true;
     }
 
     @Override

@@ -314,6 +314,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                 }
                 if (online.getWorld().getName().equals(getConfig().getString("CA.world.CraftAttack_World"))) {
                     if ((online.getGameMode() == GameMode.SPECTATOR) || (online.getGameMode() == GameMode.CREATIVE)) {
+                        online.setAllowFlight(true);
                         return;
                     }
                     if (online.isOnGround()) {
@@ -327,7 +328,6 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                     } else if (!online.hasMetadata("CraftAttackPluginSpawnElytra")) {
                         online.setGliding(false);
                         online.setAllowFlight(false);
-                        online.setFlying(false);
                     }
                 }
             }
@@ -352,17 +352,17 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         } else {
             getServer().getConsoleSender().sendMessage("[CA-Plugin] enabled!");
         }
-        prefixList.put("Empty", new Prefix("", "", "Empty", Material.BARRIER));
-        prefixList.put("Lobby", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Lobby.Prefix", null, false),
+        prefixList.putIfAbsent("Empty", new Prefix("", "", "Empty", Material.BARRIER));
+        prefixList.putIfAbsent("Lobby", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Lobby.Prefix", null, false),
                 CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Lobby.Suffix", null, false),
                 "Lobby", Material.BARRIER));
-        prefixList.put("Standard", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Standard.Prefix", null, false),
+        prefixList.putIfAbsent("Standard", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Standard.Prefix", null, false),
                 CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Standard.Suffix", null, false),
                 "Standard", Material.BARRIER));
-        prefixList.put("Cam", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Cam.Prefix", null, false),
+        prefixList.putIfAbsent("Cam", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Cam.Prefix", null, false),
                 CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Cam.Suffix", null, false),
                 "Cam", Material.BARRIER));
-        prefixList.put("Afk", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Afk.Prefix", null, false),
+        prefixList.putIfAbsent("Afk", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Afk.Prefix", null, false),
                 CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Afk.Suffix", null, false),
                 "Afk", Material.BARRIER));
         //System.out.println("Prefix List: " + prefixList);
