@@ -17,6 +17,11 @@ Lobby-Worlds:
 # Disables the Lobby System
 LobbySystemEnabled: true
 LobbySelectorBlock: ENDER_CHEST
+BetterElytraSystem:
+  enabled: false
+  multiplyValue: 3
+  boostEnabled: true
+  message: 'Use %key% to boost!'
 CA:
   PluginPrefix: '&r[&cC&3A&7-&2Plugin&r] '
   settings:

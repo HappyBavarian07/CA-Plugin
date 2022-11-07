@@ -122,7 +122,7 @@ public class MoreCraftAttackEvents implements Listener {
                 spawnmiddleloc = new Location(world, x, y, Z);
             }
             if (plugin.isinSpawn((blockloc.add(0, 1, 0)), spawnmiddleloc, plugin.getConfig().getDouble("CA.settings.Spawn.Radius")) &&
-                    blockloc.add(0, -1, 0).getBlock().getType().equals(Material.GOLD_BLOCK)) {
+                    blockloc.add(0, -1, 0).getBlock().getType().equals(Material.GOLD_BLOCK) && !plugin.getConfig().getBoolean("BetterElytraSystem.enabled")) {
                 if ((player.getGameMode() == GameMode.SPECTATOR) || (player.getGameMode() == GameMode.CREATIVE)) {
                     return;
                 }

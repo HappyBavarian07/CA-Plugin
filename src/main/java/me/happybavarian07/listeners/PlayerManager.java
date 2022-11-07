@@ -14,6 +14,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -71,8 +72,9 @@ public class PlayerManager implements Listener {
     }
 
     @EventHandler
-    public void onDoubleJump(PlayerToggleFlightEvent event) {
-        if(event.getPlayer().hasMetadata("CraftAttackPluginSpawnElytra")) {
+    public void onGlide(EntityToggleGlideEvent event) {
+        if(plugin.getConfig().getBoolean("BetterElytraSystem.enabled")) return;
+        if(event.getEntity() instanceof Player && event.getEntity().hasMetadata("CraftAttackPluginSpawnElytra")) {
             event.setCancelled(true);
         }
     }
@@ -92,6 +94,8 @@ public class PlayerManager implements Listener {
             float pitch = (float) plugin.spawnconfig.getDouble("CraftAttack.Spawn.Pitch");
             Location spawnloc = new Location(world, x, y, Z, yaw, pitch);
             e.getPlayer().teleport(spawnloc);
+        } else {
+            e.getPlayer().teleport(e.getPlayer().getBedSpawnLocation());
         }
     }
 

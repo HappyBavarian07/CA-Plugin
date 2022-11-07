@@ -160,13 +160,13 @@ public class CAPluginMain extends JavaPlugin implements Listener {
     }
 
     public void reloadPrefixConfig() {
-        if(this.prefixFile == null)
+        if (this.prefixFile == null)
             this.prefixFile = new File(getDataFolder(), "prefixes.yml");
 
         this.prefixConfig = YamlConfiguration.loadConfiguration(this.prefixFile);
 
         InputStream defaultStream = getResource("prefixes.yml");
-        if(defaultStream != null) {
+        if (defaultStream != null) {
             YamlConfiguration defaultConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultStream));
             this.prefixConfig.setDefaults(defaultConfig);
         }
@@ -196,6 +196,8 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         if (Bukkit.getPluginManager().isPluginEnabled("Admin-Panel")) {
             updater = new de.happybavarian07.adminpanel.utils.NewUpdater(AdminPanelMain.getPlugin(), 98642, "CA-Plugin-%version%.jar", this,
                     "https://github.com/HappyBavarian07/CA-Plugin/releases/latest/download/CA-Plugin-" + getPluginVersion(this) + ".jar", true);
+            // Add Link to new Version File
+            updater.setLinkToFile("https://github.com/HappyBavarian07/CA-Plugin/releases/latest/download/CA-Plugin-" + updater.getLatestVersionName() + ".jar");
         } else {
             logger.spacer().coloredMessage(ChatColor.RED, "The Plugin Admin-Panel is not installed and because of that the Updater can't function!");
         }
@@ -307,31 +309,35 @@ public class CAPluginMain extends JavaPlugin implements Listener {
          * Starting Elytra Listener
          */
         logger.coloredSpacer(ChatColor.BLUE).message("§4Starting Elytra Event Listener§r").coloredSpacer(ChatColor.BLUE);
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            for (Player online : Bukkit.getOnlinePlayers()) {
-                if (online.getInventory().getChestplate() != null && online.getInventory().getChestplate().getType() == Material.ELYTRA) {
-                    return;
-                }
-                if (online.getWorld().getName().equals(getConfig().getString("CA.world.CraftAttack_World"))) {
-                    if ((online.getGameMode() == GameMode.SPECTATOR) || (online.getGameMode() == GameMode.CREATIVE)) {
-                        online.setAllowFlight(true);
+        if (!getConfig().getBoolean("BetterElytraSystem.enabled")) {
+            Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+                for (Player online : Bukkit.getOnlinePlayers()) {
+                    if (online.getInventory().getChestplate() != null && online.getInventory().getChestplate().getType() == Material.ELYTRA) {
                         return;
                     }
-                    if (online.isOnGround()) {
-                        online.setGliding(false);
-                        online.setAllowFlight(false);
-                    }
-                    if (online.hasMetadata("CraftAttackPluginSpawnElytra")) {
-                        online.setGliding(true);
-                        online.setAllowFlight(true);
-                        online.setFallDistance(0);
-                    } else if (!online.hasMetadata("CraftAttackPluginSpawnElytra")) {
-                        online.setGliding(false);
-                        online.setAllowFlight(false);
+                    if (online.getWorld().getName().equals(getConfig().getString("CA.world.CraftAttack_World"))) {
+                        if ((online.getGameMode() == GameMode.SPECTATOR) || (online.getGameMode() == GameMode.CREATIVE)) {
+                            online.setAllowFlight(true);
+                            return;
+                        }
+                        if (online.isOnGround()) {
+                            online.setGliding(false);
+                            online.setAllowFlight(false);
+                        }
+                        if (online.hasMetadata("CraftAttackPluginSpawnElytra")) {
+                            online.setGliding(true);
+                            online.setAllowFlight(true);
+                            online.setFallDistance(0);
+                        } else if (!online.hasMetadata("CraftAttackPluginSpawnElytra")) {
+                            online.setGliding(false);
+                            online.setAllowFlight(false);
+                        }
                     }
                 }
-            }
-        }, 0L, 1L);
+            }, 0L, 1L);
+        } else {
+            Bukkit.getPluginManager().registerEvents(SpawnBoostListener.create(this), this);
+        }
         getCommandManagerRegistry().register(new CraftAttackCommandManager());
         getCommandManagerRegistry().register(new DebugCommandManager());
         getCommandManagerRegistry().register(new WorldCommandManager());
@@ -373,7 +379,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                     Utils.loadTablist(player, true);
                 }
             }
-        }, 300L);
+        }, 20L);
         if (getConfig().getBoolean("CA.settings.Updater.AutomaticLanguageFileUpdating")) {
             languageManager.reloadLanguages(null, false);
         }

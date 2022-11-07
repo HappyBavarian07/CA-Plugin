@@ -45,6 +45,7 @@ public class CamPlayersCommand extends SubCommand {
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%status%", (tempTarget.isOnline() ? "  |  &a&lOnline" : "  |  &4&lOffline"), false);
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_prefix%", Utils.getPrefixFromConfig(tempTarget).getConfigName(), false);
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_world%", tempTarget.getWorld().getName(), false);
+                    if (!plugin.getConfig().getBoolean("BetterElytraSystem.enabled"))
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%elytra_fly%", (tempTarget.hasMetadata("CraftAttackPluginSpawnElytra") ? "On" : "Off"), false);
                     List<String> tempMessages = lgm.getMessageList("Player.CamPlayerListCommand.Format", tempTarget, true);
                     //System.out.println("Temp Messages Cam: " + tempMessages);
@@ -63,6 +64,7 @@ public class CamPlayersCommand extends SubCommand {
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%status%", (target.isOnline() ? "  |  &a&lOnline" : "  |  &4&lOffline"), false);
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_prefix%", Utils.getPrefixFromConfig(target).getConfigName(), false);
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_world%", target.getWorld().getName(), false);
+                if (!plugin.getConfig().getBoolean("BetterElytraSystem.enabled"))
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%elytra_fly%", (target.hasMetadata("CraftAttackPluginSpawnElytra") ? "On" : "Off"), false);
                 List<String> messages = lgm.getMessageList("Player.CamPlayerListCommand.Format", target, true);
                 for (String message : messages) {
@@ -102,6 +104,7 @@ public class CamPlayersCommand extends SubCommand {
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%status%", (tempTarget.isOnline() ? "  |  &a&lOnline" : "  |  &4&lOffline"), false);
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_prefix%", Utils.getPrefixFromConfig(tempTarget).getConfigName(), false);
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_world%", tempTarget.getWorld().getName(), false);
+                    if (!plugin.getConfig().getBoolean("BetterElytraSystem.enabled"))
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%elytra_fly%", (tempTarget.hasMetadata("CraftAttackPluginSpawnElytra") ? "On" : "Off"), false);
                     List<String> tempMessages = lgm.getMessageList("Player.CamPlayerListCommand.Format", tempTarget, true);
                     for (String message : tempMessages) {
@@ -119,6 +122,7 @@ public class CamPlayersCommand extends SubCommand {
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%status%", (target.isOnline() ? "  |  &a&lOnline" : "  |  &4&lOffline"), false);
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_prefix%", Utils.getPrefixFromConfig(target).getConfigName(), false);
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_world%", target.getWorld().getName(), false);
+                if (!plugin.getConfig().getBoolean("BetterElytraSystem.enabled"))
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%elytra_fly%", (target.hasMetadata("CraftAttackPluginSpawnElytra") ? "On" : "Off"), false);
                 List<String> messages = lgm.getMessageList("Messages.Player.CamPlayerListCommand.Format", target, true);
                 for (String message : messages) {

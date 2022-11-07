@@ -6,7 +6,7 @@
 
     <groupId>me.happybavarian07.main</groupId>
     <artifactId>CA-Plugin</artifactId>
-    <version>1.5.1</version>
+    <version>1.6.0</version>
     <packaging>jar</packaging>
 
     <name>CA-Plugin</name>
@@ -129,7 +129,7 @@
         <dependency>
             <groupId>io.github.happybavarian07</groupId>
             <artifactId>Admin-Panel</artifactId>
-            <version>8.3.2</version>
+            <version>8.4.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -3,8 +3,8 @@ package me.happybavarian07.subCommands.CraftAttackCommand;/*
  * @Date 09.11.2021 | 15:31
  */
 
-import me.happybavarian07.commandmanagement.PaginatedList;
 import me.happybavarian07.commandmanagement.CommandData;
+import me.happybavarian07.commandmanagement.PaginatedList;
 import me.happybavarian07.commandmanagement.SubCommand;
 import me.happybavarian07.language.PlaceholderType;
 import me.happybavarian07.main.Utils;
@@ -45,7 +45,8 @@ public class CAPlayersCommand extends SubCommand {
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%status%", (tempTarget.isOnline() ? "  |  &a&lOnline" : "  |  &4&lOffline"), false);
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_prefix%", Utils.getPrefixFromConfig(tempTarget).getConfigName(), false);
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_world%", tempTarget.getWorld().getName(), false);
-                    lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%elytra_fly%", (tempTarget.hasMetadata("CraftAttackPluginSpawnElytra") ? "On" : "Off"), false);
+                    if (!plugin.getConfig().getBoolean("BetterElytraSystem.enabled"))
+                        lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%elytra_fly%", (tempTarget.hasMetadata("CraftAttackPluginSpawnElytra") ? "On" : "Off"), false);
                     List<String> tempMessages = lgm.getMessageList("Player.CAPlayerListCommand.Format", tempTarget, true);
                     //System.out.println("Temp Messages:" + tempMessages);
                     for (String message : tempMessages) {
@@ -63,7 +64,8 @@ public class CAPlayersCommand extends SubCommand {
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%status%", (target.isOnline() ? "  |  &a&lOnline" : "  |  &4&lOffline"), false);
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_prefix%", Utils.getPrefixFromConfig(target).getConfigName(), false);
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_world%", target.getWorld().getName(), false);
-                lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%elytra_fly%", (target.hasMetadata("CraftAttackPluginSpawnElytra") ? "On" : "Off"), false);
+                if (!plugin.getConfig().getBoolean("BetterElytraSystem.enabled"))
+                    lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%elytra_fly%", (target.hasMetadata("CraftAttackPluginSpawnElytra") ? "On" : "Off"), false);
                 List<String> messages = lgm.getMessageList("Player.CAPlayerListCommand.Format", target, true);
                 for (String message : messages) {
                     target.sendMessage(message);
@@ -102,7 +104,8 @@ public class CAPlayersCommand extends SubCommand {
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%status%", (tempTarget.isOnline() ? "  |  &a&lOnline" : "  |  &4&lOffline"), false);
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_prefix%", Utils.getPrefixFromConfig(tempTarget).getConfigName(), false);
                     lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_world%", tempTarget.getWorld().getName(), false);
-                    lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%elytra_fly%", (tempTarget.hasMetadata("CraftAttackPluginSpawnElytra") ? "On" : "Off"), false);
+                    if (!plugin.getConfig().getBoolean("BetterElytraSystem.enabled"))
+                        lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%elytra_fly%", (tempTarget.hasMetadata("CraftAttackPluginSpawnElytra") ? "On" : "Off"), false);
                     List<String> tempMessages = lgm.getMessageList("Player.CAPlayerListCommand.Format", tempTarget, true);
                     //System.out.println("Temp Messages:" + tempMessages);
                     for (String message : tempMessages) {
@@ -120,7 +123,8 @@ public class CAPlayersCommand extends SubCommand {
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%status%", (target.isOnline() ? "  |  &a&lOnline" : "  |  &4&lOffline"), false);
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_prefix%", Utils.getPrefixFromConfig(target).getConfigName(), false);
                 lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%current_world%", target.getWorld().getName(), false);
-                lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%elytra_fly%", (target.hasMetadata("CraftAttackPluginSpawnElytra") ? "On" : "Off"), false);
+                if (!plugin.getConfig().getBoolean("BetterElytraSystem.enabled"))
+                    lgm.addPlaceholder(PlaceholderType.MESSAGELIST, "%elytra_fly%", (target.hasMetadata("CraftAttackPluginSpawnElytra") ? "On" : "Off"), false);
                 List<String> messages = lgm.getMessageList("Player.CAPlayerListCommand.Format", target, true);
                 for (String message : messages) {
                     target.sendMessage(message);
