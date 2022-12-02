@@ -48,7 +48,7 @@ public class ReloadCommand extends SubCommand {
             for (Player player2 : Bukkit.getOnlinePlayers()) {
                 if (player2.getWorld().equals(plugin.getCraftAttackWorld())) {
                     Utils.setPlayerPrefix(player2, Utils.getPrefixFromConfig(player2) != null ? Utils.getPrefixFromConfig(player2) : plugin.getPrefix("Empty"), true);
-                    Utils.loadTablist(player2, true);
+                    Utils.loadTablistForPlayer(player2, true);
                 }
             }
             player.sendMessage(lgm.getMessage("Plugin.ReloadedTablistSuccessfully", player, false));
@@ -108,7 +108,7 @@ public class ReloadCommand extends SubCommand {
             for (Player player2 : Bukkit.getOnlinePlayers()) {
                 if (player2.getWorld().equals(plugin.getCraftAttackWorld())) {
                     Utils.setPlayerPrefix(player2, Utils.getPrefixFromConfig(player2) != null ? Utils.getPrefixFromConfig(player2) : plugin.getPrefix("Empty"), true);
-                    Utils.loadTablist(player2, true);
+                    Utils.loadTablistForPlayer(player2, true);
                 }
             }
             sender.sendMessage(lgm.getMessage("Plugin.ReloadedTablistSuccessfully", null, false));

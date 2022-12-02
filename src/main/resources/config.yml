@@ -25,6 +25,8 @@ BetterElytraSystem:
 CA:
   PluginPrefix: '&r[&cC&3A&7-&2Plugin&r] '
   settings:
+    # Disables the Bestrafungs System
+    BestrafungsSystemEnabled: true
     MySQL:
       # This Option disables the MySQL and saves all the Data in a File
       # True means MySQL disabled
@@ -87,6 +89,13 @@ CA:
     activate: false
   # Here you switch the World Check if someone is allowed to enter the Craft Attack World (Standard: true)
   world:
+    Sleep-System:
+      # Disables/Enables the Sleep System
+      enabled: true
+      # The Count of Players divided by this number has to sleep
+      count: 2
+      # Disables Messages when entering and leaving a bed
+      messageEnabled: true
     Access_Check: true
     CraftAttack_World: CraftAttack
     CraftAttack_Players:

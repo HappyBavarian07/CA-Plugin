@@ -6,7 +6,7 @@
 
     <groupId>me.happybavarian07.main</groupId>
     <artifactId>CA-Plugin</artifactId>
-    <version>1.6.0</version>
+    <version>1.6.5</version>
     <packaging>jar</packaging>
 
     <name>CA-Plugin</name>

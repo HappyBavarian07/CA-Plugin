@@ -46,6 +46,14 @@ commands:
   unlink:
     usage: /unlink
     description: Use it to unlink your Discord
+  bestrafen:
+    usage: /bestrafen <Player>
+    description: Spieler bestrafen
+  trollvanish:
+    usage: Unknown command. type "/help" for help
+    description: Unknown command. type "/help" for help
+    permission: ca.admin.troll
+    permission-message: Unknown command. type "/help" for help
 
 permissions:
   ca.prefix:
@@ -68,6 +76,8 @@ permissions:
       ca.admin.*:
         default: op
         children:
+          ca.admin.bestrafungen.use: true
+          ca.admin.bestrafungen.menu: true
           ca.admin.perplayerlang: true
           ca.admin.perplayerlangother: true
           ca.admin.orga: true

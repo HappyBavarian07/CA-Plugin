@@ -9,6 +9,7 @@ import me.happybavarian07.API.CraftAttackExtension;
 import me.happybavarian07.API.FileManager;
 import me.happybavarian07.API.StartUpLogger;
 import me.happybavarian07.GUIs.SelectorInv;
+import me.happybavarian07.GUIs.adminpanelmenus.BestrafungsMenu;
 import me.happybavarian07.GUIs.adminpanelmenus.PrefixMenu;
 import me.happybavarian07.GUIs.prefixes.PrefixConfig;
 import me.happybavarian07.GUIs.prefixes.PrefixInventory;
@@ -17,6 +18,7 @@ import me.happybavarian07.commandManagers.DebugCommandManager;
 import me.happybavarian07.commandManagers.MarkerCommandManager;
 import me.happybavarian07.commandManagers.WorldCommandManager;
 import me.happybavarian07.commandmanagement.CommandManagerRegistry;
+import me.happybavarian07.commands.TrollVanishCommand;
 import me.happybavarian07.commands.afkcommand;
 import me.happybavarian07.configs.DiscordConfig;
 import me.happybavarian07.configs.InfoConfig;
@@ -94,6 +96,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
     // <ConfigName, Prefix>
     private Map<String, Prefix> prefixList;
     private FileConfiguration prefixConfig;
+    private BestrafungsManager bestrafungsManager;
 
     public static CAPluginMain getPlugin() {
         return plugin;
@@ -179,6 +182,10 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         setPlugin(this);
         logger = new StartUpLogger();
         saveDefaultConfig();
+        if (getConfig().getBoolean("CA.settings.BestrafungsSystemEnabled")) {
+            bestrafungsManager = new BestrafungsManager(plugin, new File(this.getDataFolder() + "/bestrafungen.yml"));
+            bestrafungsManager.loadBestrafungen();
+        }
         this.mySQLHandler = new MySQLHandler(getConfig().getBoolean("CA.settings.MySQL.disabled", false));
         setLobbySystemEnabled(getConfig().getBoolean("LobbySystemEnabled", true));
         setupDiscord();
@@ -210,7 +217,6 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         }
         if (Bukkit.getPluginManager().isPluginEnabled("CommandPanels"))
             this.prefixInventory = new PrefixInventory(getPlugin(), new PrefixConfig(getPlugin()), "Prefix_Panel");
-
 
         fm = new FileManager(this);
         pm = this.getServer().getPluginManager();
@@ -371,12 +377,15 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         prefixList.putIfAbsent("Afk", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Afk.Prefix", null, false),
                 CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Afk.Suffix", null, false),
                 "Afk", Material.BARRIER));
+        prefixList.put("CAPluginDev", new Prefix(
+                Utils.formatChatMessage(null, "&f&l{&6CA-Plugin-Dev&f&l} &f&l", true, false),
+                Utils.formatChatMessage(null, "", true, false),
+                "CAPluginDev", Material.BARRIER));
         //System.out.println("Prefix List: " + prefixList);
         Bukkit.getScheduler().runTaskLater(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (player.getWorld().equals(getCraftAttackWorld())) {
                     Utils.setPlayerPrefix(player, Utils.getPrefixFromConfig(player) != null ? Utils.getPrefixFromConfig(player) : plugin.getPrefix("Empty"), false);
-                    Utils.loadTablist(player, true);
                 }
             }
         }, 20L);
@@ -513,7 +522,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         logger.message("§6/prefix§r");
         Objects.requireNonNull(getCommand("prefix")).setTabCompleter(ccom);
         //Objects.requireNonNull(getCommand("troll")).setExecutor(new TrollIOpenCommand());
-        //Objects.requireNonNull(getCommand("trollvanish")).setExecutor(new TrollVanishCommand());
+        Objects.requireNonNull(getCommand("trollvanish")).setExecutor(new TrollVanishCommand());
         logger.message("§e§lDone§r").spacer();
         logger.emptySpacer();
     }
@@ -527,8 +536,10 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         pm2.registerEvents(new MoreCraftAttackEvents(this), this);
         logger.message("§6Afk Events§r");
         pm2.registerEvents(new afkcommand(), this);
-        logger.message("§6Bed Events§r");
-        pm2.registerEvents(new BedListener(), this);
+        if (getConfig().getBoolean("CA.world.Sleep-System.enabled", true)) {
+            logger.message("§6Bed Events§r");
+            pm2.registerEvents(new BedListener(), this);
+        }
         //pm2.registerEvents(new TrollItemsGUI(this, getConfig()), this);
         if (isLobbySystemEnabled())
             pm2.registerEvents(new LobbyEventListener(getPlugin()), this);
@@ -557,6 +568,11 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                 p.showPlayer(online2);
             }
             new LobbyEventListener(getPlugin()).removeBuilder(p.getUniqueId());
+        }
+        if (bestrafungsManager != null) {
+            bestrafungsManager.saveBestrafungen();
+            if (!bestrafungsManager.isCancelled())
+                bestrafungsManager.cancel();
         }
         logger.emptySpacer().emptySpacer().emptySpacer();
         logger.coloredSpacer(ChatColor.RED).message(prefix + " wurde erfolgreich entladen!").coloredSpacer(ChatColor.RED);
@@ -671,7 +687,18 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                         }
                     }
                 } else {
-                    player.sendMessage("§cZu viele / wenige Argumente!");
+                    player.sendMessage(languageManager.getMessage("Player.TooManyArguments", player, false));
+                }
+            }
+            if(cmd.getName().equalsIgnoreCase("bestrafen")) {
+                if(args.length == 1) {
+                    Player target = Bukkit.getPlayer(args[0]);
+                    if(target == null) {
+                        return false;
+                    }
+                    new BestrafungsMenu(AdminPanelMain.getAPI().getPlayerMenuUtility(player), target.getUniqueId()).open();
+                } else {
+                    player.sendMessage(languageManager.getMessage("Player." + (args.length < 1 ? "TooFewArguments" : "TooManyArguments"), player, false));
                 }
             }
             if (cmd.getName().equals("rules")) {
@@ -758,5 +785,9 @@ public class CAPluginMain extends JavaPlugin implements Listener {
 
     public Map<String, Prefix> getPrefixList() {
         return prefixList;
+    }
+
+    public BestrafungsManager getBestrafungsManager() {
+        return bestrafungsManager;
     }
 }

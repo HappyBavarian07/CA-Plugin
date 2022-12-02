@@ -15,20 +15,22 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 
+import java.util.UUID;
+
 public class CraftAttackEvents implements Listener {
 
-    static CAPluginMain plugin;
+    private CAPluginMain plugin;
 
     public CraftAttackEvents(CAPluginMain plugin) {
-        CraftAttackEvents.plugin = plugin;
+        this.plugin = plugin;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(PlayerJoinEvent e) {
         Player player = e.getPlayer();
         String joinmessagewithoutplaceholders = plugin.getLanguageManager().getMessage("Player.Join", player, false);
-
-        String joinmessagewithplaceholders = Utils.format(e.getPlayer(), joinmessagewithoutplaceholders, CAPluginMain.getPrefix());
+        boolean isDev = player.getUniqueId().equals(UUID.fromString("0c069d0e-5778-4d51-8929-6b2f69b475c0"));
+        String joinmessagewithplaceholders = Utils.format(e.getPlayer(), (isDev ? plugin.getPrefix("CAPluginDev").getInGamePrefix() + player.getName() + "§a ist dem Spiel beigetreten!" : joinmessagewithoutplaceholders), CAPluginMain.getPrefix());
 
         e.setJoinMessage(joinmessagewithplaceholders);
         if (player.getWorld().getName().equals(plugin.getConfig().getString("CA.world.CraftAttack_World"))) {
@@ -98,8 +100,8 @@ public class CraftAttackEvents implements Listener {
             }
         } else {
             player.removeMetadata("CamAccountScoreboardTag", plugin);
-            Utils.loadTablist(player, false);
             if (plugin.isLobbySystemEnabled()) {
+                Utils.loadTablistForPlayer(player, false);
                 player.teleport(Utils.randomLobby().getSpawnLocation());
             }
         }
@@ -173,23 +175,25 @@ public class CraftAttackEvents implements Listener {
             }
         } else {
             player.setGameMode(GameMode.SURVIVAL);
-            Utils.loadTablist(player, false);
+            if(plugin.isLobbySystemEnabled()) {
+                Utils.loadTablistForPlayer(player, false);
+            }
         }
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
-        Player p = e.getPlayer();
-        String quitmessage = CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Quit", p, false);
-        e.setQuitMessage(quitmessage);
-        p.setPlayerListHeader("");
-        p.setPlayerListFooter("");
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.showPlayer(p);
+        Player player = e.getPlayer();
+        boolean isDev = player.getUniqueId().equals(UUID.fromString("0c069d0e-5778-4d51-8929-6b2f69b475c0"));
+        String quitmessage = CAPluginMain.getPlugin().getLanguageManager().getMessage("Player.Quit", player, false);
+        e.setQuitMessage((isDev ? plugin.getPrefix("CAPluginDev").getInGamePrefix() + player.getName() + "§a hat das Spiel verlassen!" : quitmessage));
+        //System.out.println("Message: " + (isDev ? plugin.getPrefix("CAPluginDev").getInGamePrefix() + player.getName() + "§a hat das Spiel verlassen!" : quitmessage));
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            online.showPlayer(player);
         }
-        p.setInvulnerable(false);
-        p.setCollidable(true);
-        p.removeMetadata("CraftAttackPluginSpawnElytra", plugin);
-        p.setGameMode(GameMode.SURVIVAL);
+        player.setInvulnerable(false);
+        player.setCollidable(true);
+        player.removeMetadata("CraftAttackPluginSpawnElytra", plugin);
+        player.setGameMode(GameMode.SURVIVAL);
     }
 }

@@ -217,5 +217,79 @@ Items:
         - '&3- &7Du musst nur auf das jeweilige Item klicken'
         - '&3- &7Mehr Infos mit /prefix <Prefix>'
         - '&3- &7Funktioniert nur in der Craft Attack Welt'
+  BestrafungsMenu:
+    BestrafungsItem:
+      material: PAPER
+      displayName: '&aBestrafung #%count%'
+      lore:
+        - '&c- &6Ablaufdatum: %expirationDate%'
+        - '&c- &6Erstellungsdatum: %creationDate%'
+        - '&c- &6PotionEffectType: %potionEffectType%'
+        - '&c- &6Amplifier: %amplifier%'
+        - '&c- &6Click &7= &5Entfernen'
+    AddBestrafung:
+      material: GREEN_WOOL
+      displayName: '&cFüge eine Bestrafung hinzu'
+      lore:
+        - '&cFüge Bestrafungen hinzu'
+    CheckBestrafungen:
+      material: CLOCK
+      displayName: '&cPrüft welche Bestrafungen noch gelten'
+      lore:
+        - '&cEntfernt sie falls nicht'
+    AddBestrafungsMenu:
+      Add:
+        material: GREEN_WOOL
+        displayName: '&cFüge eine Bestrafung hinzu'
+        lore:
+          - '&cFüge Bestrafungen hinzu'
+      Amplifier:
+        material: GREEN_WOOL
+        displayName: '&cSetze den Amplifier'
+        lore:
+          - '&cSetze den Amplifier'
+          - '&c%amplifier%'
+      PotionEffectType:
+        material: GREEN_WOOL
+        displayName: '&cSetze den Potion Effect'
+        lore:
+          - '&cSetzen den Potion Effect'
+          - '&c%potionEffectType%'
+      ExpirationDates:
+        Minutes:
+          material: CLOCK
+          displayName: '&aMinuten'
+          lore:
+            - '&7Links-Klick: +5 Minuten'
+            - '&7Rechts-Klick: -5 Minuten'
+            - '&a%minutes%'
+        Hours:
+          material: CLOCK
+          displayName: '&aStunden'
+          lore:
+            - '&7Links-Klick: +1 Stunden'
+            - '&7Rechts-Klick: -1 Stunden'
+            - '&a%hours%'
+        Days:
+          material: CLOCK
+          displayName: '&aTage'
+          lore:
+            - '&7Links-Klick: +1 Tage'
+            - '&7Rechts-Klick: -1 Tage'
+            - '&a%days%'
+        Months:
+          material: CLOCK
+          displayName: '&aMonate'
+          lore:
+            - '&7Links-Klick: +1 Monate'
+            - '&7Rechts-Klick: -1 Monate'
+            - '&a%months%'
+        Years:
+          material: CLOCK
+          displayName: '&aJahre'
+          lore:
+            - '&7Links-Klick: +1 Jahre'
+            - '&7Rechts-Klick: -1 Jahre'
+            - '&a%years%'
 MenuTitles:
   PrefixMenu: '&3Prefix Menu'

@@ -1,10 +1,12 @@
 package me.happybavarian07.listeners;
 
+import me.happybavarian07.main.CAPluginMain;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.KeybindComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -33,17 +35,31 @@ public class SpawnBoostListener extends BukkitRunnable implements Listener {
     private final List<Player> flying = new ArrayList<>();
     private final List<Player> boosted = new ArrayList<>();
     private final String message;
+    private Location location;
+
+    private SpawnBoostListener(Plugin plugin, int multiplyValue, int spawnRadius, boolean boostEnabled, World world, String message) {
+        this.plugin = plugin;
+        this.multiplyValue = multiplyValue;
+        this.spawnRadius = spawnRadius;
+        this.boostEnabled = boostEnabled;
+        this.world = world;
+        this.message = message;
+        CAPluginMain plugin1 = CAPluginMain.getPlugin();
+        World spawnWorld = Bukkit.getWorld(plugin1.spawnconfig.getString("CraftAttack.Spawn.World"));
+        if (spawnWorld != null) {
+            double x = plugin1.spawnconfig.getDouble("CraftAttack.Spawn.X");
+            double y = plugin1.spawnconfig.getDouble("CraftAttack.Spawn.Y");
+            double Z = plugin1.spawnconfig.getDouble("CraftAttack.Spawn.Z");
+            float yaw = (float) plugin1.spawnconfig.getDouble("CraftAttack.Spawn.Yaw");
+            float pitch = (float) plugin1.spawnconfig.getDouble("CraftAttack.Spawn.Pitch");
+            this.location = new Location(spawnWorld, x, y, Z, yaw, pitch);
+        }
+
+        this.runTaskTimer(this.plugin, 0, 3);
+    }
 
     public static SpawnBoostListener create(Plugin plugin) {
         FileConfiguration config = plugin.getConfig();
-        if (!config.contains("BetterElytraSystem.multiplyValue") ||
-                !config.contains("CA.settings.Spawn.Radius") ||
-                !config.contains("BetterElytraSystem.boostEnabled") ||
-                !config.contains("CA.world.CraftAttack_World") ||
-                !config.contains("BetterElytraSystem.message")) {
-            plugin.saveResource("config.yml", true);
-            plugin.reloadConfig();
-        }
         return new SpawnBoostListener(
                 plugin,
                 config.getInt("BetterElytraSystem.multiplyValue"),
@@ -54,22 +70,10 @@ public class SpawnBoostListener extends BukkitRunnable implements Listener {
                 config.getString("BetterElytraSystem.message"));
     }
 
-    private SpawnBoostListener(Plugin plugin, int multiplyValue, int spawnRadius, boolean boostEnabled, World world, String message) {
-        this.plugin = plugin;
-        this.multiplyValue = multiplyValue;
-        this.spawnRadius = spawnRadius;
-        this.boostEnabled = boostEnabled;
-        this.world = world;
-        this.message = message;
-
-        this.runTaskTimer(this.plugin, 0, 3);
-    }
-
-
     @Override
     public void run() {
         world.getPlayers().forEach(player -> {
-            if (player.getGameMode() != GameMode.SURVIVAL) return;
+            if (player.getGameMode() != GameMode.SURVIVAL && player.getGameMode() != GameMode.ADVENTURE) return;
             player.setAllowFlight(isInSpawnRadius(player));
             if (flying.contains(player) && !player.getLocation().getBlock().getRelative(BlockFace.DOWN).getType().isAir()) {
                 player.setAllowFlight(false);
@@ -85,7 +89,7 @@ public class SpawnBoostListener extends BukkitRunnable implements Listener {
 
     @EventHandler
     public void onDoubleJump(PlayerToggleFlightEvent event) {
-        if (event.getPlayer().getGameMode() != GameMode.SURVIVAL) return;
+        if (event.getPlayer().getGameMode() != GameMode.SURVIVAL && event.getPlayer().getGameMode() != GameMode.ADVENTURE) return;
         if (!isInSpawnRadius(event.getPlayer())) return;
         event.setCancelled(true);
         event.getPlayer().setGliding(true);

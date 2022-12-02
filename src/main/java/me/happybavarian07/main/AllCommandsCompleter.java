@@ -35,9 +35,11 @@ public class AllCommandsCompleter implements TabCompleter {
             }
             return debugargs;
         }
+        // TODO Noch ein paar Bug fixes machen und dann das update hochladen ohne das Feature mit CA DEv anzukündigen
         if (cmd.getName().equalsIgnoreCase("prefix")) {
             if (prefixargs.isEmpty()) {
                 prefixargs.addAll(CAPluginMain.getPlugin().getPrefixList().keySet());
+                prefixargs.remove("CAPluginDev");
             }
 
             List<String> result = new ArrayList<>();

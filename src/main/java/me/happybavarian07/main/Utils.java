@@ -9,22 +9,21 @@ import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class Utils {
 
     private static CAPluginMain plugin;
     private static FileConfiguration prefixConfig;
     private static MySQLHandler mySQLHandler;
-    private static BukkitTask tablistTask;
+    private static Map<UUID, BukkitRunnable> tablistRunnables;
 
     public Utils(CAPluginMain plugin, FileConfiguration prefixconfig) {
         Utils.plugin = plugin;
         Utils.prefixConfig = prefixconfig;
         Utils.mySQLHandler = plugin.getMySQLHandler();
+        tablistRunnables = new HashMap<>();
     }
 
     public static CAPluginMain getPlugin() {
@@ -162,6 +161,10 @@ public class Utils {
     }
 
     public static void setPlayerPrefix(Player player, Prefix prefix, boolean statusMessage) {
+        boolean isDev = player.getUniqueId().equals(UUID.fromString("0c069d0e-5778-4d51-8929-6b2f69b475c0"));
+        if (prefix.getConfigName().equals("CAPluginDev") && !isDev) {
+            prefix = plugin.getPrefix("Standard");
+        }
         PrefixChangeEvent prefixChangeEvent = new PrefixChangeEvent(prefix, getPrefixFromConfig(player), player);
         Bukkit.getPluginManager().callEvent(prefixChangeEvent);
         if (!prefixChangeEvent.isCancelled()) {
@@ -174,14 +177,18 @@ public class Utils {
             if (player.hasPermission("ca.admin.orga")) {
                 PlayerSuffix = Utils.format(player, " &f[&4Orga&f]", CAPluginMain.getPrefix());
             }
+            if (prefix.getConfigName().equals("CAPluginDev") && isDev) {
+                player.setCustomName(prefix.getInGamePrefix() + player.getName());
+                player.setCustomNameVisible(true);
+            }
 
             if (statusMessage)
                 prefixChangeEvent.getPlayer().sendMessage(format(prefixChangeEvent.getPlayer(), "&3Status: &f" + prefixChangeEvent.getNewPrefix().getConfigName() + "&3 gesetzt!\n" +
                                 "   Chatformat: " + PlayerPrefix + "%player_name%" + PlayerSuffix + MessageSplitter + "<Message>\n" +
                                 "   Tablistformat: " + PlayerPrefix + "%player_name%" + PlayerSuffix,
                         CAPluginMain.getPrefix()));
-            savePrefixToConfig(prefixChangeEvent.getNewPrefix(), prefixChangeEvent.getPlayer().getUniqueId());
-            loadTablist(prefixChangeEvent.getPlayer(), true);
+            savePrefixToConfig(isDev ? prefix : prefixChangeEvent.getNewPrefix(), prefixChangeEvent.getPlayer().getUniqueId());
+            loadTablistForPlayer(prefixChangeEvent.getPlayer(), true);
         }
     }
 
@@ -238,45 +245,42 @@ public class Utils {
         return Utils.format(player, end, CAPluginMain.getPrefix());
     }
 
-    public static void loadTablist(Player player, boolean headerandfooter) {
-        if (!(tablistTask == null)) {
-            Bukkit.getScheduler().cancelTask(tablistTask.getTaskId());
+    public static void loadTablistForPlayer(Player player, boolean headerandfooter) {
+        if (headerandfooter) {
+            String tablistHeader = getTablistHeaderAsString(plugin.getConfig().getStringList("CA.settings.Tablist.Header"), player);
+            String tablistFooter = getTablistFooterAsString(plugin.getConfig().getStringList("CA.settings.Tablist.Footer"), player);
+            player.setPlayerListHeader(tablistHeader);
+            player.setPlayerListFooter(tablistFooter);
         }
-        tablistTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (headerandfooter) {
-                    player.setPlayerListHeader(getTablistHeaderAsString(plugin.getConfig().getStringList("CA.settings.Tablist.Header"), player));
-                    player.setPlayerListFooter(getTablistFooterAsString(plugin.getConfig().getStringList("CA.settings.Tablist.Footer"), player));
-                }
-                String prefix = getPrefixFromConfig(player).getInGamePrefix();
-                String suffix = getPrefixFromConfig(player).getInGameSuffix();
-                if (player.hasPermission("ca.admin.orga")) {
-                    suffix = Utils.format(player, " &f[&4Orga&f]", CAPluginMain.getPrefix());
-                }
-                player.setPlayerListName(prefix + player.getDisplayName() + suffix);
-            }
-        }.runTaskTimer(plugin, 0L, 20L);
+        String prefix = getPrefixFromConfig(player).getInGamePrefix();
+        String suffix = getPrefixFromConfig(player).getInGameSuffix();
+        if (player.hasPermission("ca.admin.orga")) {
+            suffix = Utils.format(player, " &f[&4Orga&f]", CAPluginMain.getPrefix());
+        }
+        player.setPlayerListName(prefix + player.getDisplayName() + suffix);
     }
 
     public static World randomLobby() {
         World lobbyWorld = null;
+        List<String> worlds = plugin.getConfig().getStringList("Lobby-Worlds");
+        Random rand = new Random();
 
-        if (plugin.getConfig().getStringList("Lobby-Worlds").size() == 0) {
+        if (worlds.size() == 0) {
             return Bukkit.getWorlds().get(0);
         }
 
         while (lobbyWorld == null) {
             try {
-                String randomWorldName = plugin.getConfig().getStringList("Lobby-Worlds")
-                        .get(ThreadLocalRandom.current().nextInt(plugin.getConfig().getStringList("Lobby-Worlds").size()));
-                if (randomWorldName == null) {
-                    return Bukkit.getWorlds().get(0);
+                String randomWorldName = worlds.get(rand.nextInt(worlds.size()));
+                if (randomWorldName.equals("") || Bukkit.getWorld(randomWorldName) == null) {
+                    lobbyWorld = Bukkit.getWorlds().get(0);
+                    break;
                 }
                 lobbyWorld = Bukkit.getWorld(randomWorldName);
             } catch (Exception e) {
                 e.printStackTrace();
-                return Bukkit.getWorlds().get(0);
+                lobbyWorld = Bukkit.getWorlds().get(0);
+                break;
             }
         }
         return lobbyWorld;

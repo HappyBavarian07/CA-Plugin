@@ -120,6 +120,7 @@ public class PrefixMenu extends PaginatedMenu {
                     ///////////////////////////
 
                     Prefix prefix = prefixList.get(index);
+                    if(prefix.getConfigName().equals("CAPluginDev")) continue;
                     if(prefix.getMenuMaterial().equals(Material.BARRIER)) continue;
                     ItemStack item = new ItemStack(prefix.getMenuMaterial());
                     ItemMeta meta = item.getItemMeta();

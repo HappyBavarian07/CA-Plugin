@@ -19,7 +19,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
@@ -73,8 +72,8 @@ public class PlayerManager implements Listener {
 
     @EventHandler
     public void onGlide(EntityToggleGlideEvent event) {
-        if(plugin.getConfig().getBoolean("BetterElytraSystem.enabled")) return;
-        if(event.getEntity() instanceof Player && event.getEntity().hasMetadata("CraftAttackPluginSpawnElytra")) {
+        if (plugin.getConfig().getBoolean("BetterElytraSystem.enabled")) return;
+        if (event.getEntity() instanceof Player && event.getEntity().hasMetadata("CraftAttackPluginSpawnElytra")) {
             event.setCancelled(true);
         }
     }
@@ -101,9 +100,15 @@ public class PlayerManager implements Listener {
 
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {
+
+        // Tablist
+        if (!plugin.isLobbySystemEnabled())
+            Utils.loadTablistForPlayer(e.getPlayer(), false);
+        // Tablist end
+
         e.getPlayer().removeMetadata("CraftAttackPluginSpawnElytra", plugin);
         // Random lobby World
-        if(plugin.isLobbySystemEnabled()) {
+        if (plugin.isLobbySystemEnabled()) {
             e.getPlayer().teleport(Utils.randomLobby().getSpawnLocation());
         }
     }
@@ -111,7 +116,14 @@ public class PlayerManager implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoinForRegister(PlayerJoinEvent e) {
         Player player = e.getPlayer();
+        CAPluginMain.getPlugin().getBestrafungsManager().checkBestrafungen(e.getPlayer().getUniqueId());
         File userdatafile = new File(plugin.getDataFolder() + "/userdata/" + player.getUniqueId() + ".yml");
+
+        // Tablist
+        if (!plugin.isLobbySystemEnabled())
+            Utils.loadTablistForPlayer(e.getPlayer(), true);
+        // Tablist end
+
         if (!player.hasPlayedBefore()) {
             try {
                 if (!userdatafile.getParentFile().exists())
