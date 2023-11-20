@@ -129,7 +129,7 @@
         <dependency>
             <groupId>io.github.happybavarian07</groupId>
             <artifactId>Admin-Panel</artifactId>
-            <version>8.4.0</version>
+            <version>8.6.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
