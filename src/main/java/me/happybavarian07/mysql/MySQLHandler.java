@@ -48,7 +48,7 @@ public class MySQLHandler {
     }
 
     public boolean useMySQL() {
-        return !mySQLDisabled;
+        return !mySQLDisabled && connection != null;
     }
 
     public MySQL getMySQL() {
