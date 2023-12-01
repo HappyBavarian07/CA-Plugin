@@ -15,6 +15,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.inventory.ItemStack;
@@ -44,6 +46,11 @@ public class AddBestrafungMenu extends Menu implements Listener {
     @Override
     public String getMenuName() {
         return "Bestrafung hinzufügen";
+    }
+
+    @Override
+    public String getConfigMenuAddonFeatureName() {
+        return "AddBestrafungMenu";
     }
 
     @Override
@@ -153,6 +160,16 @@ public class AddBestrafungMenu extends Menu implements Listener {
             player.sendMessage("Erfolgreich Bestrafung ausgegeben!");
             player.closeInventory();
         }
+    }
+
+    @Override
+    public void handleOpenMenu(InventoryOpenEvent e) {
+
+    }
+
+    @Override
+    public void handleCloseMenu(InventoryCloseEvent e) {
+
     }
 
     @Override

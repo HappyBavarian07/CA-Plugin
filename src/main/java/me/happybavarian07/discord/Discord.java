@@ -20,6 +20,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
@@ -116,14 +117,14 @@ public class Discord extends ListenerAdapter implements Listener {
                                 messageBuilder.setColor(0x22ff2a);
                                 messageBuilder.setDescription("[" + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "] [" +
                                         record.getLevel() + "]: " + record.getThrown());
-                                minecraftChatChannel.sendMessageEmbeds(messageBuilder.build()).queue();
+                                minecraftChatChannel.sendMessage(messageBuilder.build()).queue();
                             } else if (record.getMessage() != null) {
                                 EmbedBuilder messageBuilder = new EmbedBuilder();
                                 messageBuilder.setAuthor("Server");
                                 messageBuilder.setColor(0x22ff2a);
                                 messageBuilder.setDescription("[" + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds() + "] [" +
                                         record.getLevel() + "]: " + record.getMessage());
-                                minecraftChatChannel.sendMessageEmbeds(messageBuilder.build()).queue();
+                                minecraftChatChannel.sendMessage(messageBuilder.build()).queue();
                             }
                         }
                     } catch (NoClassDefFoundError ignored) {
@@ -148,14 +149,14 @@ public class Discord extends ListenerAdapter implements Listener {
     }
 
     @EventHandler
-    public void onChat(AsyncPlayerChatEvent e) {
+    public void onChat(PlayerChatEvent e) {
         if (!transferMinecraftChat()) return;
         try {
             EmbedBuilder messageBuilder = new EmbedBuilder();
             messageBuilder.setAuthor(e.getPlayer().getName());
             messageBuilder.setThumbnail("https://mc-heads.net/avatar/" + e.getPlayer().getUniqueId() + "/96/helm.png");
             messageBuilder.setDescription(Utils.format(e.getPlayer(), e.getMessage(), CAPluginMain.getPrefix()));
-            minecraftChatChannel.sendMessageEmbeds(messageBuilder.build()).queue();
+            minecraftChatChannel.sendMessage(messageBuilder.build()).queue();
         } catch (NoClassDefFoundError ignored) {
         }
     }
@@ -189,7 +190,7 @@ public class Discord extends ListenerAdapter implements Listener {
             messageBuilder.setAuthor(e.getPlayer().getName());
             messageBuilder.setColor(Color.GREEN);
             messageBuilder.setDescription(":green_square: **" + e.getPlayer().getName() + "** joined the Server");
-            minecraftChatChannel.sendMessageEmbeds(messageBuilder.build()).complete(true);
+            minecraftChatChannel.sendMessage(messageBuilder.build()).complete(true);
         } catch (NoClassDefFoundError | RateLimitedException ignored) {
         }
     }
@@ -203,7 +204,7 @@ public class Discord extends ListenerAdapter implements Listener {
             messageBuilder.setAuthor(e.getPlayer().getName());
             messageBuilder.setColor(Color.RED);
             messageBuilder.setDescription(":red_square: **" + e.getPlayer().getName() + "** left the Server");
-            minecraftChatChannel.sendMessageEmbeds(messageBuilder.build()).complete(true);
+            minecraftChatChannel.sendMessage(messageBuilder.build()).complete(true);
         } catch (NoClassDefFoundError | RateLimitedException ignored) {
         }
     }
@@ -214,7 +215,7 @@ public class Discord extends ListenerAdapter implements Listener {
         if(args.length == 0) return;
         if (args[0].equalsIgnoreCase("!link")) {//!link <Name>
             try {
-                if (event.getAuthor().isBot() || event.getAuthor().isSystem() || event.isWebhookMessage()) return;
+                if (event.getAuthor().isBot() || event.getAuthor().isFake() || event.isWebhookMessage()) return;
                 if (event.getMember().getRoles().stream().filter(role -> role.getName().equals("Verified")).findAny().orElse(null) != null) {
                     event.getChannel().sendMessage(":x: **|** Error! " + event.getAuthor().getAsMention() + ", you are already verified!").queue();
                     return;
@@ -239,7 +240,7 @@ public class Discord extends ListenerAdapter implements Listener {
             }
         } else {
             try {
-                if (event.getAuthor().isBot() || event.getAuthor().isSystem() || event.isWebhookMessage()) return;
+                if (event.getAuthor().isBot() || event.getAuthor().isFake() || event.isWebhookMessage()) return;
 
                 if (event.getChannel().equals(minecraftChatChannel) && transferDiscordChat()) {
                     String message = event.getMessage().getContentDisplay();
@@ -273,7 +274,7 @@ public class Discord extends ListenerAdapter implements Listener {
             messageBuilder.setAuthor("Server");
             messageBuilder.setColor(Color.RED);
             messageBuilder.setDescription(":red_circle: **Server stopped!** :red_circle:");
-            minecraftChatChannel.sendMessageEmbeds(messageBuilder.build()).queue();
+            minecraftChatChannel.sendMessage(messageBuilder.build()).queue();
             Thread.sleep(2000);
         } catch (NoClassDefFoundError | InterruptedException ignored) {
         }
@@ -298,7 +299,7 @@ public class Discord extends ListenerAdapter implements Listener {
             messageBuilder.setAuthor("Server");
             messageBuilder.setColor(0x22ff2a);
             messageBuilder.setDescription(":green_circle: **Server started!** :green_circle:");
-            minecraftChatChannel.sendMessageEmbeds(messageBuilder.build()).queue();
+            minecraftChatChannel.sendMessage(messageBuilder.build()).queue();
         } catch (NoClassDefFoundError ignored) {
         }
     }

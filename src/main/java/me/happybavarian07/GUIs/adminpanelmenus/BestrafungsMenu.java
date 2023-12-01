@@ -13,6 +13,8 @@ import me.happybavarian07.main.CAPluginMain;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 
@@ -34,6 +36,11 @@ public class BestrafungsMenu extends PaginatedMenu {
     @Override
     public String getMenuName() {
         return "Bestrafungs Menu";
+    }
+
+    @Override
+    public String getConfigMenuAddonFeatureName() {
+        return "BestrafungsMenu";
     }
 
     @Override
@@ -95,6 +102,16 @@ public class BestrafungsMenu extends PaginatedMenu {
             }
             super.open();
         }
+    }
+
+    @Override
+    public void handleOpenMenu(InventoryOpenEvent e) {
+
+    }
+
+    @Override
+    public void handleCloseMenu(InventoryCloseEvent e) {
+
     }
 
     @Override

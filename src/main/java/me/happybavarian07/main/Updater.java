@@ -11,7 +11,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
 
 import java.io.*;
 import java.net.URL;
@@ -31,7 +30,9 @@ public class Updater implements Listener {
     }
 
     public String html2text(String html) {
-        return Jsoup.parse(html).text();
+        String text = html.replaceAll("<.*?>", "");
+        text = text.replaceAll("\\s+", " ").trim();
+        return text;
     }
 
     public String getLatestVersionID() {

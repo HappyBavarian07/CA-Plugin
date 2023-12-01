@@ -162,6 +162,7 @@ public class Utils {
 
     public static void setPlayerPrefix(Player player, Prefix prefix, boolean statusMessage) {
         boolean isDev = player.getUniqueId().equals(UUID.fromString("0c069d0e-5778-4d51-8929-6b2f69b475c0"));
+        if(prefix == null) throw new NullPointerException("Prefix is null! Either use an Existing Prefix or create a new one in the prefixes.yml file using the scheme at the Top!");
         if (prefix.getConfigName().equals("CAPluginDev") && !isDev) {
             prefix = plugin.getPrefix("Standard");
         }

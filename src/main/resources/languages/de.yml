@@ -144,22 +144,22 @@ Messages:
     Standard:
       Prefix: '&r[&2Prefix&r] '
       Suffix: ''
-    Offline:
+    Offline: # hier was machen
       Prefix: '&r[&2Offline&r] '
       Suffix: ''
-    Online:
+    Online: # hier was machen
       Prefix: '&r[&3Online&r] '
       Suffix: ''
-    Redstone:
+    Redstone: # hier was machen
       Prefix: '&r[&4Redstone&r] '
       Suffix: ''
-    Live:
+    Live: # hier was machen
       Prefix: '&r[&4Live&r] '
       Suffix: ''
     Afk:
       Prefix: '&r[&6A&5F&4K&r] '
       Suffix: ''
-    Record:
+    Record: # hier was machen
       Prefix: '&r[&4Rec&r] '
       Suffix: ''
     Cam:

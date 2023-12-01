@@ -14,6 +14,8 @@ import me.happybavarian07.main.Utils;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -35,6 +37,11 @@ public class PrefixMenu extends PaginatedMenu {
     }
 
     @Override
+    public String getConfigMenuAddonFeatureName() {
+        return "PrefixMenu";
+    }
+
+    @Override
     public int getSlots() {
         return 54;
     }
@@ -53,7 +60,7 @@ public class PrefixMenu extends PaginatedMenu {
         if (item == null) {
             return;
         }
-        de.happybavarian07.adminpanel.main.LanguageManager templgm = AdminPanelMain.getPlugin().getLanguageManager();
+        de.happybavarian07.adminpanel.language.LanguageManager templgm = AdminPanelMain.getPlugin().getLanguageManager();
 
         if (item.equals(templgm.getItem("General.Close", null, false))) {
             player.closeInventory();
@@ -88,6 +95,16 @@ public class PrefixMenu extends PaginatedMenu {
         } else {
             player.sendMessage("§cDu kannst deinen Prefix nur setzen wenn du in der Craft Attack Welt bist!");
         }
+    }
+
+    @Override
+    public void handleOpenMenu(InventoryOpenEvent e) {
+
+    }
+
+    @Override
+    public void handleCloseMenu(InventoryCloseEvent e) {
+
     }
 
     @Override

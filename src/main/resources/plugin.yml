@@ -3,7 +3,7 @@ main: me.happybavarian07.main.CAPluginMain
 api-version: 1.13
 version: ${project.version}
 author: HappyBavarian07
-depend: [PlaceholderAPI]
+depend: [PlaceholderAPI, NBTAPI]
 softdepend:
   - Admin-Panel
   - CommandPanels

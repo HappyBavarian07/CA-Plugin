@@ -8,6 +8,8 @@ import de.happybavarian07.adminpanel.menusystem.PlayerMenuUtility;
 import me.happybavarian07.language.LanguageManager;
 import me.happybavarian07.main.CAPluginMain;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 
 public class SelectorMenu extends Menu {
     private final LanguageManager lgm;
@@ -23,12 +25,27 @@ public class SelectorMenu extends Menu {
     }
 
     @Override
+    public String getConfigMenuAddonFeatureName() {
+        return "SelectorMenu";
+    }
+
+    @Override
     public int getSlots() {
         return 54;
     }
 
     @Override
     public void handleMenu(InventoryClickEvent e) {
+
+    }
+
+    @Override
+    public void handleOpenMenu(InventoryOpenEvent e) {
+
+    }
+
+    @Override
+    public void handleCloseMenu(InventoryCloseEvent e) {
 
     }
 

@@ -1,5 +1,6 @@
 package me.happybavarian07.main;
 
+import com.saicone.ezlib.Ezlib;
 import de.happybavarian07.adminpanel.main.AdminPanelMain;
 import de.happybavarian07.adminpanel.utils.VersionComparator;
 import de.slikey.effectlib.EffectManager;
@@ -175,6 +176,12 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         }
     }
 
+    public void loadDependenciesViaEzLib() {
+        Ezlib ezlib = new Ezlib(new File(this.getDataFolder() + "/libs"));
+        ezlib.init();
+        ezlib.dependency("net.dv8tion:JDA:1.2.1_106").parent(true).load();
+    }
+
     public void onEnable() {
         prefixList = new HashMap<>();
         spawnvorgang = new HashMap<>();
@@ -258,7 +265,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
                         Utils.formatChatMessage(null, section.getString("prefix"), true, true),
                         Utils.formatChatMessage(null, section.getString("suffix"), true, true),
                         section.getString("configName"),
-                        section.getString("menuMaterial") == null ? Material.BARRIER : Material.matchMaterial(section.getString("menuMaterial")));
+                        section.getString("menuMaterial") == null ? Material.BARRIER : Material.matchMaterial(section.getString("menuMaterial").toUpperCase()));
                 prefixList.put(prefix.getConfigName(), prefix);
             }
         }
@@ -269,6 +276,11 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         new Utils(getPlugin(), prefixConfig);
         new CraftAttackExtension().register();
         logger.message("§e§lDone§r").emptySpacer().spacer();
+
+        /*
+         * Dependency Management
+         */
+        loadDependenciesViaEzLib();
 
         /*
          * Crafting Recipes
@@ -377,6 +389,21 @@ public class CAPluginMain extends JavaPlugin implements Listener {
         prefixList.putIfAbsent("Afk", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Afk.Prefix", null, false),
                 CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Afk.Suffix", null, false),
                 "Afk", Material.BARRIER));
+        prefixList.putIfAbsent("Offline", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Offline.Prefix", null, false),
+                CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Offline.Suffix", null, false),
+                "Offline", Material.YELLOW_CONCRETE));
+        prefixList.putIfAbsent("Online", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Online.Prefix", null, false),
+                CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Online.Suffix", null, false),
+                "Online", Material.GREEN_CONCRETE));
+        prefixList.putIfAbsent("Redstone", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Redstone.Prefix", null, false),
+                CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Redstone.Suffix", null, false),
+                "Redstone", Material.REDSTONE));
+        prefixList.putIfAbsent("Live", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Live.Prefix", null, false),
+                CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Live.Suffix", null, false),
+                "Live", Material.RED_CONCRETE));
+        prefixList.putIfAbsent("Record", new Prefix(CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Record.Prefix", null, false),
+                CAPluginMain.getPlugin().getLanguageManager().getMessage("Prefix.Record.Suffix", null, false),
+                "Record", Material.RED_WOOL));
         prefixList.put("CAPluginDev", new Prefix(
                 Utils.formatChatMessage(null, "&f&l{&6CA-Plugin-Dev&f&l} &f&l", true, false),
                 Utils.formatChatMessage(null, "", true, false),
@@ -418,9 +445,7 @@ public class CAPluginMain extends JavaPlugin implements Listener {
     }
 
     public Prefix getPrefix(String configName) {
-        int count = 0;
         for (String key : prefixList.keySet()) {
-            count++;
             if (configName.equalsIgnoreCase(key)) {
                 //System.out.println("Key: " + key);
                 //System.out.println("Value: " + prefixList.get(key));
